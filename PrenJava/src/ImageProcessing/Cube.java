@@ -5,6 +5,7 @@
 package ImageProcessing;
 
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 
 /**
  *
@@ -17,6 +18,8 @@ public class Cube {
     private Point UpperRight;
     private Point LowerLeft;
     private Point LowerRight;
+    
+    private Rect boundingRect;
     
     public Cube() {}
 
@@ -66,6 +69,17 @@ public class Cube {
 
     public void setLowerRight(Point LowerRight) {
         this.LowerRight = LowerRight;
+    }
+        
+    public void setBoundingRect(Rect boundingRect) {
+        this.UpperLeft = new Point(boundingRect.x, 
+                boundingRect.y);
+        this.UpperRight = new Point(boundingRect.x + boundingRect.width, 
+                boundingRect.y);
+        this.LowerLeft = new Point(boundingRect.x, 
+                boundingRect.y + boundingRect.height);
+        this.LowerRight = new Point(boundingRect.x + boundingRect.width,
+                boundingRect.y + boundingRect.height);
     }
     
 }
