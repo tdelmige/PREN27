@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package Core;
+package ImageProcessing;
 
 import java.util.ArrayList;
 import org.opencv.core.Core;
