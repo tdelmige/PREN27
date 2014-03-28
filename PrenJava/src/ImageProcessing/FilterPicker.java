@@ -63,6 +63,7 @@ public class FilterPicker
 	private static JTextField txtuVal;
 	private static JSlider sliduVal;
 	private static JComboBox<String> cboColor;
+	private static JComboBox<String> cboProfil;
 	private static Boolean bTarget = false;
 	private static Boolean bRun = true;
 	private static Properties config;
@@ -157,6 +158,8 @@ public class FilterPicker
 		panel.setLayout(new FlowLayout());
 		panel.setPreferredSize(new Dimension(1400,100));
 		
+		
+		JLabel lbl1 = new JLabel("TargetSystem: ");
 		ButtonGroup radOption = new ButtonGroup();
 		JRadioButton radOn = new JRadioButton("On");
 		radOn.addActionListener(new ActionListener() {
@@ -178,9 +181,29 @@ public class FilterPicker
 		});
 		radOption.add(radOn);
 		radOption.add(radOff);
+		panel.add(lbl1);
 		panel.add(radOn);
 		panel.add(radOff);
 		
+		JLabel lbl2 = new JLabel("Profil: ");
+		cboProfil = new JComboBox<String>();
+		cboProfil.addItem("");
+		cboProfil.addItem("Normal");
+		cboProfil.addItem("Dunkel");
+		cboProfil.addItem("Hell");
+		cboProfil.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				getProperties();
+				
+			}
+		});
+		
+		panel.add(lbl2);
+		panel.add(cboProfil);
+		
+		JLabel lbl3 = new JLabel("Color: ");
 		cboColor = new JComboBox<String>();
 		cboColor.addItem("Blau");
 		cboColor.addItem("Grün");
@@ -216,6 +239,7 @@ public class FilterPicker
 		});
 		
 		btnSave.setText("Save");
+		panel.add(lbl3);
 		panel.add(cboColor);
 		panel.add(btnSave);
 		
@@ -501,24 +525,26 @@ public class FilterPicker
 	
 	private static void setProperties(){
 		
+		String profil = (String)cboProfil.getSelectedItem();
 		String color = (String)cboColor.getSelectedItem();
-		config.setProperty(color + " lHue", txtlHue.getText());
-		config.setProperty(color + " lVal", txtlVal.getText());
-		config.setProperty(color + " lSat", txtlSat.getText());
-		config.setProperty(color + " uHue", txtuHue.getText());
-		config.setProperty(color + " uVal", txtuVal.getText());
-		config.setProperty(color + " uSat", txtuSat.getText());
+		config.setProperty(profil + color + " lHue", txtlHue.getText());
+		config.setProperty(profil + color + " lVal", txtlVal.getText());
+		config.setProperty(profil + color + " lSat", txtlSat.getText());
+		config.setProperty(profil + color + " uHue", txtuHue.getText());
+		config.setProperty(profil + color + " uVal", txtuVal.getText());
+		config.setProperty(profil + color + " uSat", txtuSat.getText());
 	}
 	private static void getProperties(){
 		
+		String profil = (String)cboProfil.getSelectedItem();
 		String color = (String)cboColor.getSelectedItem();
 		try {
-			slidlHue.setValue(Integer.valueOf(config.getProperty(color + " lHue")));
-			slidlVal.setValue(Integer.valueOf(config.getProperty(color + " lVal")));
-			slidlSat.setValue(Integer.valueOf(config.getProperty(color + " lSat")));
-			sliduHue.setValue(Integer.valueOf(config.getProperty(color + " uHue")));
-			sliduVal.setValue(Integer.valueOf(config.getProperty(color + " uVal")));
-			sliduSat.setValue(Integer.valueOf(config.getProperty(color + " uSat")));
+			slidlHue.setValue(Integer.valueOf(config.getProperty(profil + color + " lHue")));
+			slidlVal.setValue(Integer.valueOf(config.getProperty(profil + color + " lVal")));
+			slidlSat.setValue(Integer.valueOf(config.getProperty(profil + color + " lSat")));
+			sliduHue.setValue(Integer.valueOf(config.getProperty(profil + color + " uHue")));
+			sliduVal.setValue(Integer.valueOf(config.getProperty(profil + color + " uVal")));
+			sliduSat.setValue(Integer.valueOf(config.getProperty(profil + color + " uSat")));
 		} catch (NumberFormatException e) {
 			// TODO Auto-generated catch block
 			//e.printStackTrace();
