@@ -39,6 +39,13 @@ public class CubeFinder {
     
     // List of found Cubes
     private ArrayList<Cube> Cubes;
+    
+    public CubeFinder() {
+    	this.minArea = 2000;
+    	this.kSize = new Size(3,3);
+    	this.sigmaX = 1;
+    	this.maxValue = 100;
+    }
 
     public double getMinArea() {
         return minArea;
@@ -105,10 +112,12 @@ public class CubeFinder {
     }
     
     private void smooth() {
-        
+    	Mat tmp = new Mat();
+        Imgproc.GaussianBlur(inputImage, tmp, kSize, sigmaX);
+        Imgproc.adaptiveThreshold(tmp, processedImage, maxValue, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, blockSize, 0);
     }
     
-    private void findCubes() {
+    public void findCubes() {
         Cubes = new ArrayList<>();
         ArrayList<MatOfPoint> Contours = new ArrayList<>();
         Mat Hierarchy = new Mat();
@@ -135,7 +144,7 @@ public class CubeFinder {
                 
                 // approx Corners
                 Rect boundingRect = Imgproc.boundingRect(Contour);
-                
+                newCube.setBoundingRect(boundingRect);
                 
                 
                 Cubes.add(newCube);
