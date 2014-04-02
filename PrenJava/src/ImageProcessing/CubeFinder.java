@@ -4,7 +4,6 @@
  */
 package ImageProcessing;
 
-import java.util.AbstractCollection;
 import java.util.ArrayList;
 
 import org.opencv.core.Mat;
@@ -111,6 +110,10 @@ public class CubeFinder {
         this.blockSize = blockSize;
     }
     
+    public ArrayList<Cube> getCubes() {
+    	return Cubes;
+    }
+
     private void smooth() {
     	Mat tmp = new Mat();
         Imgproc.GaussianBlur(inputImage, tmp, kSize, sigmaX);

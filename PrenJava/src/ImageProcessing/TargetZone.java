@@ -4,6 +4,8 @@
  */
 package ImageProcessing;
 
+import org.opencv.core.Rect;
+import org.opencv.core.Point;
 /**
  *
  * @author raffaelsteinmann
@@ -12,9 +14,10 @@ public class TargetZone {
     
     private int Line1;
     private int Line2;
+    private Rect Zone;
 
-    public TargetZone(int width, int Line2) {
-
+    public TargetZone(int width, Point center) {
+    	
     }
 
     public int getLine1() {
@@ -33,6 +36,12 @@ public class TargetZone {
         this.Line2 = Line2;
     }
     
-    
+    public boolean contains(Cube cube){
+    	if (cube.getCenter().x > Line1 && cube.getCenter().x < Line2) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
     
 }
