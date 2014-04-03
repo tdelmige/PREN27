@@ -7,5 +7,10 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="PrenJava/res/OpenCV"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="D:/Development/_Java/Git/PREN27/PrenJava/res/jSSC/jssc.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Pren/res/jSSC"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
