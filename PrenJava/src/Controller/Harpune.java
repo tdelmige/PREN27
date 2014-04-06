@@ -9,4 +9,5 @@ public class Harpune {
 		
 	}
 
+	//Abschuss = SetPin 1 High und SetPin 1 Low
 }

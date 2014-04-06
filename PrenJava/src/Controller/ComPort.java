@@ -7,7 +7,7 @@ public class ComPort implements SerialPortEventListener {
 	private String[] ports;
 	private SerialPort port;
 	public static String PortNr;
-	public static int byteLength = 11;
+	public static final short LengthResponse = 11;
 	
 	public ComPort(){
 		ports = SerialPortList.getPortNames();
@@ -37,7 +37,7 @@ public class ComPort implements SerialPortEventListener {
 	
 	public byte[] Read(){
         try {
-        	return port.readBytes(byteLength);//Read 10 bytes from serial port
+        	return port.readBytes(LengthResponse);//Read 10 bytes from serial port
 
         }
         catch (SerialPortException ex) {
@@ -69,10 +69,10 @@ public class ComPort implements SerialPortEventListener {
 	@Override
 	public void serialEvent(SerialPortEvent event) {
 		if(event.isRXCHAR()){//If data is available
-            if(event.getEventValue() == byteLength){//Check bytes count in the input buffer
+            if(event.getEventValue() == LengthResponse){//Check bytes count in the input buffer
                 //Read data, if 10 bytes available 
                 try {
-                    byte buffer[] = port.readBytes(byteLength);
+                    byte buffer[] = port.readBytes(LengthResponse);
                 }
                 catch (SerialPortException ex) {
                     System.out.println(ex);
