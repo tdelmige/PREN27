@@ -1,17 +1,11 @@
 package ImageProcessing.CamTest;
 
-import org.opencv.core.Core;
+import java.awt.image.BufferedImage;
+import javax.swing.JFrame;
 import org.opencv.core.Mat;
-import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
-import org.opencv.objdetect.CascadeClassifier;
 
 import ImageProcessing.OCVPanel;
-
-import java.awt.*;
-import java.awt.image.BufferedImage;
-
-import javax.swing.*;
 
 public class CamTest 
 {	
