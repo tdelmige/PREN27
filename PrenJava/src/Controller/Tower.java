@@ -2,10 +2,17 @@ package Controller;
 
 public class Tower {
 	
-	ComPort port;
+	private Command com;
 	
-	public Tower(){
-		port = new ComPort();
+	public Tower(Command com) {
+		this.com = com;
 		
 	}
+	
+	public void MoveRight(){
+		
+		com.Send(Command.MoveTo((short)1, (short)1, (short)40, (short)0, (short)0, (short)0));
+	}
+	
+	public void MoveLeft(){}
 }

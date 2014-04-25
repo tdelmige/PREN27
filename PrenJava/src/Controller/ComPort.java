@@ -1,17 +1,42 @@
 package Controller;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Stack;
+
+import javax.swing.Timer;
+
+import Common.IMessage;
+import Common.MessageImpl;
+import Common.Observable;
 import jssc.*;
 
-public class ComPort implements SerialPortEventListener {
+public class ComPort extends Observable<IMessage> implements SerialPortEventListener {
 	
 	private String[] ports;
 	private SerialPort port;
 	public static String PortNr;
 	public static final short LengthResponse = 11;
+	private byte[] lastResponse = null;
+	private Stack<byte[]> respStack = null;
+	private Timer timer;	
+	private static short timeout = 50;
+	private boolean lock = false;
+	private short comAdr;
 	
 	public ComPort(){
 		ports = SerialPortList.getPortNames();
 		Init(PortNr);
+		respStack = new Stack<byte[]>();
+		timer = new Timer(timeout, new ActionListener() {
+	
+			@Override
+			public void actionPerformed(ActionEvent ea) {
+				lock = false;
+				
+			}
+		});
+		
 	}
 	
 	public void Init(String portNumber){
@@ -47,14 +72,23 @@ public class ComPort implements SerialPortEventListener {
         return null;
 	}	
 	
-	public void Write(byte[] msg){
-        try {
-        	port.writeBytes(msg);//Write data to port
-
+	public boolean Write(byte[] msg, short adr)
+	{
+		if (!this.lock)
+		{
+	        try {
+	        	comAdr = adr;
+	        	port.writeBytes(msg);//Write data to port
+	        	this.lock = true;
+	        	timer.start();
+	
+	        }
+	        catch (SerialPortException ex) {
+	            System.out.println(ex);
+	        }
+	        return true;
         }
-        catch (SerialPortException ex) {
-            System.out.println(ex);
-        }
+		return false;
 	}
 	
 	public void ClosePort(){
@@ -69,10 +103,16 @@ public class ComPort implements SerialPortEventListener {
 	@Override
 	public void serialEvent(SerialPortEvent event) {
 		if(event.isRXCHAR()){//If data is available
-            if(event.getEventValue() == LengthResponse){//Check bytes count in the input buffer
+            if(event.getEventValue() == LengthResponse) {//Check bytes count in the input buffer
                 //Read data, if 10 bytes available 
                 try {
-                    byte buffer[] = port.readBytes(LengthResponse);
+                    byte[] buffer = port.readBytes(LengthResponse);
+                    lastResponse = buffer;
+                    respStack.add(buffer);
+                    this.lock = false;
+                    
+                    IMessage msg = new MessageImpl(null, null, null, null, null, comAdr);
+                    super.notifyObservers(msg);
                 }
                 catch (SerialPortException ex) {
                     System.out.println(ex);
@@ -95,7 +135,25 @@ public class ComPort implements SerialPortEventListener {
                 System.out.println("DSR - OFF");
             }
         }
-
-		
 	}
+	
+//	public String LastResponse(){
+//		String res = "";
+//		for (byte b  : lastResponse) {
+//			res = res + String.valueOf(b) + "/";
+//		}
+//	
+//		return res;
+//	}
+//	
+//	public boolean Acknowledge(){
+//		int ack = lastResponse[0];
+//		
+//		if (ack == 1 )
+//			{ return true;}
+//
+//		else 
+//			{ return false;}
+//	}
+	
 }

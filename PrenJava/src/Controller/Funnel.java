@@ -2,11 +2,11 @@ package Controller;
 
 public class Funnel {
 	
-	ComPort port;
+	private Command com;
 	
-	public Funnel(){
-		port = new ComPort();
+	public Funnel(Command com) {
+		this.com = com;
 		
 	}
-
+	
 }

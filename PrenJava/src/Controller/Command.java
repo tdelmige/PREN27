@@ -1,6 +1,9 @@
 package Controller;
 
-public class Command {
+import Common.IMessage;
+import Common.IObserver;
+
+public class Command implements IObserver<IMessage>{
 	
 	private static final byte InitMove = 0x00;
 	private static final byte MoveTo = 0x01;
@@ -19,16 +22,49 @@ public class Command {
 	private static final byte MoveToWayPoint = 0x0D;
 	
 	private static final short  byteLength = 10;
+	private static ComPort com = null;
+	private static short adr =0;
 	
 	
-	static {}
+	private IMessage lastRespone; 
+	private short comAdr;
 	
+	static 
+	{		
+		ComPort.PortNr = "COM1";
+		com = new ComPort();
+		
+	}
+	
+	public Command(){
+		comAdr = ++adr;
+		com.addObserver(this);
+	}
+	
+	
+	public void Send(byte[] cmd)
+	{
+		//über event lösen = answer auswerten
+		while(!com.Write(cmd, comAdr))
+		{
+			//String exception = com.LastResponse();
+		}
+		
+		
+	}
+	
+//	private static String Answer(){
+//		return com.LastResponse();
+//	}
+
 	public static byte[] InitMove(short motor, short dir){
 		
 		byte[] cmd = new byte[byteLength];
 		cmd[0] = InitMove;
 		cmd[1] = (byte) motor;
 		cmd[2] = (byte) dir;
+		
+
 		
 		return cmd;
 	}
@@ -170,6 +206,16 @@ public class Command {
 		cmd[5] = (byte) dec;
 		
 		return cmd;
+	}
+
+	@Override
+	public void update(IMessage arg) {
+		if(arg.getException() == null && arg.getComAdr() == comAdr)
+		{
+			if(arg.getAcknowledge()){}
+			String msg = arg.getMessage();
+			System.out.println(msg);
+		}
 	}
 
 }
