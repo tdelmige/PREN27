@@ -13,16 +13,16 @@ public class Gui {
 	
 	private JFrame frame;
 	private JPanel container;
+	private JPanel imagePanel;
 	private ImagePanel originalImage, processedImage;
-	private ControlPanel ctrlPanel;
-	private FilterSet filterPicker;
+	private FilterPanel ctrlPanel;
+	private ControlPanel panel;
+	private FilterSet filterSet;
 	
 	public Gui() {
 		frame = new JFrame("Main");
-		container = new JPanel();
-		container.setLayout(new BoxLayout(container ,BoxLayout.PAGE_AXIS));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(1400, 800);
+		//frame.setSize(1400, 600);
 		frame.addWindowListener(new WindowListener(){
 
 			@Override
@@ -67,17 +67,23 @@ public class Gui {
 			}
 
 		});
-		ctrlPanel = new ControlPanel();
+		container = new JPanel();
+		container.setLayout(new BoxLayout(container ,BoxLayout.Y_AXIS));
+		imagePanel = new JPanel();
+		imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.X_AXIS));
+		ctrlPanel = new FilterPanel();
 		originalImage = new ImagePanel();
 		processedImage = new ImagePanel();
+		imagePanel.add(originalImage);
+		imagePanel.add(processedImage);
 		container.add(ctrlPanel);
-		container.add(originalImage);
-		container.add(processedImage);
-		frame.add(container);
+		container.add(imagePanel);
+		//frame.add(container);
+		panel = new ControlPanel();
+		frame.add(panel);
 		frame.setVisible(true);
 		
-		filterPicker = new FilterSet();
-		ctrlPanel.setfilterPicker(filterPicker);
+		filterSet = new FilterSet();
+		ctrlPanel.setfilterPicker(filterSet);
 	}
-
 }

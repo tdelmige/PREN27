@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
@@ -18,7 +19,10 @@ public class ImagePanel extends JPanel {
     
     public ImagePanel() {
         super();
-        this.setSize(640,360);
+        //this.setSize(640,360);
+        this.setPreferredSize(new Dimension(640, 360));
+        this.setMaximumSize(new Dimension(640,360));
+        this.setMinimumSize(new Dimension(640,360));
         this.setBorder(BorderFactory.createLineBorder(Color.black));
     }
 
