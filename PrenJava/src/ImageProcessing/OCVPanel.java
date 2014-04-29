@@ -2,9 +2,13 @@ package ImageProcessing;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import org.opencv.core.MatOfByte;
 import org.opencv.core.Point;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -63,7 +67,7 @@ public class OCVPanel extends JPanel
 	*
 	* @param matrix Mat of type CV_8UC3 or CV_8UC1
 	* @return BufferedImage of type TYPE_3BYTE_BGR or TYPE_BYTE_GRAY
-	*/
+	*//*
 	public static BufferedImage matToBufferedImage(Mat matrix) 
 	{
 		int cols = matrix.cols();
@@ -96,7 +100,27 @@ public class OCVPanel extends JPanel
 		BufferedImage image2 = new BufferedImage(cols, rows, type);
 		image2.getRaster().setDataElements(0, 0, cols, rows, data);
 		return image2;
-	}
+	}*/
+	
+    public static BufferedImage MatToBufferedImage(Mat image) {
+        
+        BufferedImage bufImage = null;
+        
+        MatOfByte matOfByte = new MatOfByte();
+        Highgui.imencode(".jpg", image, matOfByte);
+        
+        byte[] byteArray = matOfByte.toArray();
+        
+        try {
+            InputStream in = new ByteArrayInputStream(byteArray);
+            bufImage = ImageIO.read(in);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return bufImage;
+    }
 	
 	public void paintComponent(Graphics g)
 	{
@@ -106,58 +130,5 @@ public class OCVPanel extends JPanel
 			//g.drawImage(temp,10,10,temp.getWidth(),temp.getHeight(), this);
 		}
 	}
-	
-	/*
-	public static void main(String arg[])
-	{
-		// Load the native library.
-		System.loadLibrary("opencv_java246");
-		JFrame frame = new JFrame("BasicPanel");
-		CascadeClassifier faceDetector = new CascadeClassifier("./src/main/resources/lbpcascade_frontalface.xml");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(400,400);
-		Panel panel = new Panel();
-		frame.setContentPane(panel);
-		frame.setVisible(true);
-		Mat webcam_image=new Mat();
-		BufferedImage temp;
-		VideoCapture capture =new VideoCapture(0);
-	
-		if( capture.isOpened())
-		{
-			while( true )
-			{
-				capture.read(webcam_image);
-				
-				if( !webcam_image.empty() )
-				{
-					frame.setSize(webcam_image.width()+40,webcam_image.height()+60);
-					
-					
-					MatOfRect faceDetections = new MatOfRect();
-					faceDetector.detectMultiScale(webcam_image, faceDetections);
-					
-					System.out.println(String.format("Detected %s faces", faceDetections.toArray().length));
-					
-					// Draw a bounding box around each face.
-					for (Rect rect : faceDetections.toArray()) 
-					{
-						Core.rectangle(webcam_image, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));
-					}
-					
-					
-					temp=matToBufferedImage(webcam_image);
-					panel.setimage(temp);
-					panel.repaint();
-				}
-				else
-				{
-					System.out.println(" --(!) No captured frame -- Break!");
-					break;
-				}
-			}
-		}
-		return;
-	}
-	*/
+
 } 

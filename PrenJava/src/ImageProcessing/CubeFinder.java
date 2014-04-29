@@ -44,6 +44,7 @@ public class CubeFinder {
     	this.kSize = new Size(3,3);
     	this.sigmaX = 1;
     	this.maxValue = 100;
+    	this.blockSize = 11;
     }
 
     public double getMinArea() {
@@ -84,6 +85,7 @@ public class CubeFinder {
 
     public void setInputImage(Mat inputImage) {
         this.inputImage = inputImage;
+        this.processedImage = inputImage.clone();
     }
 
     public Mat getProcessedImage() {
@@ -129,7 +131,7 @@ public class CubeFinder {
         smooth();
         
         // find all Contours
-        Imgproc.findContours(inputImage, Contours, Hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(processedImage, Contours, Hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
         
         // analyze Contours
         for(MatOfPoint Contour : Contours) {
@@ -148,8 +150,7 @@ public class CubeFinder {
                 // approx Corners
                 Rect boundingRect = Imgproc.boundingRect(Contour);
                 newCube.setBoundingRect(boundingRect);
-                
-                
+                               
                 Cubes.add(newCube);
             }
         }

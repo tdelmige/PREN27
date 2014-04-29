@@ -18,9 +18,8 @@ public class Cube {
     private Point UpperRight;
     private Point LowerLeft;
     private Point LowerRight;
-    private int LeftBorder;
-    private int RightBorder;
     private Rect boundingRect;
+    
     
     public Cube() {}
 
@@ -32,7 +31,7 @@ public class Cube {
         this.LowerRight = LowerRight;
     }
 
-    public Point getCenter() {
+	public Point getCenter() {
         return Center;
     }
 
@@ -71,8 +70,13 @@ public class Cube {
     public void setLowerRight(Point LowerRight) {
         this.LowerRight = LowerRight;
     }
-        
+    
+    public Rect getBoundingRect() {
+    	return this.boundingRect;
+    }
+    
     public void setBoundingRect(Rect boundingRect) {
+    	
         this.UpperLeft = new Point(boundingRect.x, 
                 boundingRect.y);
         this.UpperRight = new Point(boundingRect.x + boundingRect.width, 
@@ -82,8 +86,6 @@ public class Cube {
         this.LowerRight = new Point(boundingRect.x + boundingRect.width,
                 boundingRect.y + boundingRect.height);
         
-        this.LeftBorder = boundingRect.x;
-        this.RightBorder = boundingRect.x + boundingRect.width;
     }
     
 }
