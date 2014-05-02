@@ -9,4 +9,6 @@ public class Funnel {
 		
 	}
 	
+	
+	public void Open(){}
 }

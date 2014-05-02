@@ -213,8 +213,12 @@ public class Command implements IObserver<IMessage>{
 		if(arg.getException() == null && arg.getComAdr() == comAdr)
 		{
 			if(arg.getAcknowledge()){}
-			String msg = arg.getMessage();
-			System.out.println(msg);
+			
+			//Fehler 
+			else{
+				String msg = arg.getMessage();
+				System.out.println(msg);
+			}
 		}
 	}
 

@@ -30,4 +30,6 @@ public class Harpune {
 
 
 	}
+	
+	public void Pull() {}
 }
