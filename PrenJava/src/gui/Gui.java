@@ -6,10 +6,11 @@ import java.awt.event.WindowListener;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JComponent;
 
 import ImageProcessing.FilterSet;
 
-public class Gui {
+public class Gui extends JComponent {
 	
 	private JFrame frame;
 	private JPanel container;
