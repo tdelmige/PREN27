@@ -1,10 +1,13 @@
 package ImageProcessing.CamTest;
 
 import java.awt.image.BufferedImage;
+
 import javax.swing.JFrame;
+
 import org.opencv.core.Mat;
 import org.opencv.highgui.VideoCapture;
 
+import ImageProcessing.Converter;
 import ImageProcessing.OCVPanel;
 
 public class CamTest 
@@ -36,7 +39,7 @@ public class CamTest
 				{
 					frame.setSize(webcam_image.width()+40,webcam_image.height()+60);
 					
-					temp= panel.matToBufferedImage(webcam_image);
+					temp= Converter.MatToBufferedImage(webcam_image);
 					panel.setImage(temp);
 					panel.repaint();
 				}

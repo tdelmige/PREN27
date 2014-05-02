@@ -15,6 +15,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -42,7 +43,10 @@ import javax.swing.plaf.SliderUI;
 import org.opencv.*;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
+import org.opencv.highgui.Highgui;
+import org.opencv.imgproc.Imgproc;
 
 public class FilterPicker
 {
@@ -206,7 +210,7 @@ public class FilterPicker
 		JLabel lbl3 = new JLabel("Color: ");
 		cboColor = new JComboBox<String>();
 		cboColor.addItem("Blau");
-		cboColor.addItem("Grün");
+		cboColor.addItem("Gruen");
 		cboColor.addItem("RotU");
 		cboColor.addItem("RotL");
 		cboColor.addItem("Gelb");
@@ -461,13 +465,15 @@ public class FilterPicker
 	}
 	
 	
-	private static void startCam(){
+	private static void startCam() {
 		
 		Mat webcam_image=new Mat();
+		Mat resizedOriginal, resizedProcessed;
 		BufferedImage temp;
-		VideoCapture capture =new VideoCapture(0);
+		VideoCapture capture = new VideoCapture("res//vid.mp4");
+		//VideoCapture capture = new VideoCapture(0);
 	
-		if( capture.isOpened())
+		if ( capture.isOpened())
 		{
 			while( bRun )
 			{
@@ -476,10 +482,11 @@ public class FilterPicker
 				if( !webcam_image.empty() )
 				{
 					//frame.setSize(webcam_image.width()+40,webcam_image.height()+60);
-					
-					temp= ovcPanel.matToBufferedImage(webcam_image);
-					
+					Imgproc.cvtColor(webcam_image, webcam_image,Imgproc.COLOR_BGR2HSV);
 				
+					resizedOriginal = resizeImage(webcam_image, new Size(640,320));
+					temp= OCVPanel.MatToBufferedImage(resizedOriginal);
+								
 					double dLHue = slidlHue.getValue();
 					double dLVal = slidlVal.getValue();
 					double dLSat = slidlSat.getValue();
@@ -491,7 +498,10 @@ public class FilterPicker
 					Scalar uScalar = new Scalar(dUHue, dUVal, dUSat);
 				
 					ColorFilter filter = new ColorFilter(lScalar, uScalar);
-					BufferedImage mask = ovcPanel.matToBufferedImage(filter.filter(webcam_image));
+					
+					resizedOriginal = filter.filter(webcam_image);
+					resizedOriginal = resizeImage(resizedOriginal, new Size(640,320));
+					BufferedImage mask = OCVPanel.MatToBufferedImage(resizedOriginal);
 					ovcPanel.setMask(mask);
 					
 
@@ -502,25 +512,31 @@ public class FilterPicker
 						cubeCounter.setFilter(filter);
 						cubeCounter.analyze(webcam_image);
 						
-						ovcPanel.setImage(ovcPanel.matToBufferedImage(cubeCounter.getImage())); 
+						resizedProcessed = resizeImage(cubeCounter.getImage(), new Size(640,320));
+						ovcPanel.setImage(OCVPanel.MatToBufferedImage(resizedProcessed)); 
 					}
 					else
 					{
 						ovcPanel.setImage(temp);
 					}
 					
-					
 				}
 				else
 				{
-					System.out.println(" --(!) No captured frame -- Break!");
-					break;
+					//System.out.println(" --(!) No captured frame -- Break!");
+					capture.open("res//vid.mp4");
 				}
 				
 				
 			}
 		}
 		
+	}
+	
+	private static Mat resizeImage(Mat image, Size newSize) {
+		Mat resizedImage = image.clone();
+		Imgproc.resize(image, resizedImage,newSize);
+		return resizedImage;
 	}
 	
 	private static void setProperties(){

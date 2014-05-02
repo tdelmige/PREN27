@@ -43,6 +43,7 @@ public class ColorFilter {
            Core.bitwise_and(ProcessedImage, ProcessedImage, tmp);
         }
         return ProcessedImage;
+        
     }
 
     public void setLower(Scalar Lower) {
