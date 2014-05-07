@@ -19,7 +19,8 @@ public class Gui extends JComponent {
 	private FilterPanel ctrlPanel;
 	private ControlPanel panel;
 	private FilterSet filterSet;
-	
+    private nGui gui;
+
 	public Gui() {
 		frame = new JFrame("Main");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
