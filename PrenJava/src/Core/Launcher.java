@@ -11,7 +11,7 @@ public class Launcher {
 
 	public static void main(String arg[])
 	{
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		//System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
 		System.out.print("Robot started");
 

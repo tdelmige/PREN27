@@ -1,5 +1,10 @@
 package Common;
 
+import Controller.Funnel;
+import Controller.Harpune;
+import Controller.Tower;
+import Core.RobotController;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.net.*;
@@ -14,7 +19,11 @@ public class KeyboardAnimation implements ActionListener
 
 	private JComponent component;
 	private Timer timer;
-	private Map<String, Point> pressedKeys = new HashMap<String, Point>();
+	private Map<String, EComAction> pressedKeys = new HashMap<String, EComAction>();
+
+    private Tower tower;
+    private Harpune harpune;
+    private Funnel funnel;
 
 	public KeyboardAnimation(JComponent component, int delay)
 	{
@@ -24,12 +33,21 @@ public class KeyboardAnimation implements ActionListener
 		timer.setInitialDelay( 0 );
 	}
 
+    public KeyboardAnimation(JComponent component, int delay, Tower tower, Harpune harpune, Funnel funnel)
+    {
+        this(component, delay);
+
+        this.tower = tower;
+        this.harpune = harpune;
+        this.funnel = funnel;
+    }
+
 	/*
 	*  &param keyStroke - see KeyStroke.getKeyStroke(String) for the format of
 	*                     of the String. Except the "pressed|released" keywords
 	*                     are not to be included in the string.
 	*/
-	public void addAction(String keyStroke)
+	public void addAction(String keyStroke, EComAction action)
 	{
 		//  Separate the key identifier from the modifiers of the KeyStroke
 
@@ -44,7 +62,7 @@ public class KeyboardAnimation implements ActionListener
 
 		//  Create Action and add binding for the pressed key
 
-		Action pressedAction = new AnimationAction(key, true);
+		Action pressedAction = new AnimationAction(key, action);
 		String pressedKey = modifiers + PRESSED + key;
 		KeyStroke pressedKeyStroke = KeyStroke.getKeyStroke(pressedKey);
 		inputMap.put(pressedKeyStroke, pressedKey);
@@ -52,7 +70,7 @@ public class KeyboardAnimation implements ActionListener
 
 		//  Create Action and add binding for the released key
 
-		Action releasedAction = new AnimationAction(key, false);
+		Action releasedAction = new AnimationAction(key, null);
 		String releasedKey = modifiers + RELEASED + key;
 		KeyStroke releasedKeyStroke = KeyStroke.getKeyStroke(releasedKey);
 		inputMap.put(releasedKeyStroke, releasedKey);
@@ -61,14 +79,14 @@ public class KeyboardAnimation implements ActionListener
 
 	//  Invoked whenever a key is pressed or released
 
-	private void handleKeyEvent(String key, Boolean pressed)
+	private void handleKeyEvent(String key, EComAction action)
 	{
 		//  Keep track of which keys are pressed
 
-		if (!pressed)
+		if (action == null)
 			pressedKeys.remove( key );
 		else
-			pressedKeys.put(key, null);
+			pressedKeys.put(key, action);
 
 		//  Start the Timer when the first key is pressed
 
@@ -89,53 +107,56 @@ public class KeyboardAnimation implements ActionListener
 
 	public void actionPerformed(ActionEvent e)
 	{
-		moveComponent();
+		takeAction();
 	}
 
 	//  Move the component to its new location
 
-	private void moveComponent()
+	private void takeAction()
 	{
-		int componentWidth = component.getSize().width;
-		int componentHeight = component.getSize().height;
+        for (EComAction action : pressedKeys.values()){
 
-		Dimension parentSize = component.getParent().getSize();
-		int parentWidth  = parentSize.width;
-		int parentHeight = parentSize.height;
+            switch (action){
 
-		//  Calculate new move
+                case TowMoveLeft:
+                    this.tower.MoveLeft();
+                    break;
 
-		int deltaX = 0;
-		int deltaY = 0;
+                case TowMoveRight:
+                    this.tower.MoveRight();
+                    break;
 
-		for (Point delta : pressedKeys.values())
-		{
-			deltaX += delta.x;
-			deltaY += delta.y;
-		}
+                case TowMoveAroundLeft:
+                    this.tower.MoveAroundLeft();
+                    break;
 
+                case TowMoveAroundRight:
+                    this.tower.MoveAroundRight();
+                    break;
 
-		//  Determine next X position
+                case HarFire:
+                    this.harpune.Fire();
+                    break;
 
-		int nextX = Math.max(component.getLocation().x + deltaX, 0);
+                case HarPull:
+                    this.harpune.Pull();
+                    break;
 
-		if ( nextX + componentWidth > parentWidth)
-		{
-			nextX = parentWidth - componentWidth;
-		}
+                case FunOpen:
+                    this.funnel.Open();
+                    break;
 
-		//  Determine next Y position
+                case EXIT:
+                    RobotController.Close = true;
+                    break;
 
-		int nextY = Math.max(component.getLocation().y + deltaY, 0);
+                case STOP:
+                    RobotController.Stop();
+                    break;
 
-		if ( nextY + componentHeight > parentHeight)
-		{
-			nextY = parentHeight - componentHeight;
-		}
+            }
+        }
 
-		//  Move the component
-
-		component.setLocation(nextX, nextY);
 	}
 
 	//  Action to keep track of the key and a Point to represent the movement
@@ -143,30 +164,23 @@ public class KeyboardAnimation implements ActionListener
 
 	private class AnimationAction extends AbstractAction implements ActionListener
 	{
-		private Boolean pressed;
+		private EComAction action;
 
-		public AnimationAction(String key, Boolean pressed)
+		public AnimationAction(String key, EComAction action)
 		{
 			super(key);
 
-            this.pressed = pressed;
+            this.action = action;
 		}
 
 		public void actionPerformed(ActionEvent e)
 		{
-			handleKeyEvent((String)getValue(NAME), pressed);
+			handleKeyEvent((String)getValue(NAME), action);
 		}
 	}
 
 //	public static void main(String[] args)
 //	{
-//		JPanel contentPane = new JPanel();
-//		contentPane.setLayout( null );
-//
-//		JLabel label = new JLabel( new ColorIcon(Color.BLUE, 40, 40) );
-//		label.setSize( label.getPreferredSize() );
-//		label.setLocation(500, 500);
-//		contentPane.add( label );
 //
 //		KeyboardAnimation animation = new KeyboardAnimation(label, 24);
 //		animation.addAction("LEFT", -3,  0);
@@ -177,52 +191,14 @@ public class KeyboardAnimation implements ActionListener
 //		animation.addAction("control LEFT", -5,  0);
 //		animation.addAction("V",  5,  5);
 //
-//		JLabel label2 = new JLabel( new ColorIcon(Color.GREEN, 40, 40) );
-//		label2.setSize( label2.getPreferredSize() );
-//		label2.setLocation(100, 100);
-//		contentPane.add( label2 );
 //
 //		KeyboardAnimation animation2 = new KeyboardAnimation(label2, 24);
 //		animation2.addAction("A", -3,  0);
 //		animation2.addAction("D", 3,  0);
 //		animation2.addAction("W",    0, -3);
 //		animation2.addAction("S",  0,  3);
-//
-//		JFrame frame = new JFrame();
-//		frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-//		frame.getContentPane().add(contentPane);
-//		frame.setSize(600, 600);
-//		frame.setLocationRelativeTo( null );
-//		frame.setVisible(true);
+
 //	}
 
-//	static class ColorIcon implements Icon
-//	{
-//		private Color color;
-//		private int width;
-//		private int height;
-//
-//		public ColorIcon(Color color, int width, int height)
-//		{
-//			this.color = color;
-//			this.width = width;
-//			this.height = height;
-//		}
-//
-//		public int getIconWidth()
-//		{
-//			return width;
-//		}
-//
-//		public int getIconHeight()
-//		{
-//			return height;
-//		}
-//
-//		public void paintIcon(Component c, Graphics g, int x, int y)
-//		{
-//			g.setColor(color);
-//			g.fillRect(x, y, width, height);
-//		}
-//	}
+
 }

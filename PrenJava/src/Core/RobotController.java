@@ -1,6 +1,7 @@
 package Core;
 
-import org.opencv.highgui.VideoCapture;
+import Common.EComAction;
+//
 
 import gui.Gui;
 import Controller.Aimbot;
@@ -21,7 +22,7 @@ public class RobotController {
 	
 	private FilterSet filterSet;
 	
-	private VideoCapture capture;
+	//private VideoCapture capture;
 
 
     private Command command;
@@ -29,13 +30,24 @@ public class RobotController {
     private Harpune harpune;
     private Funnel funnel;
 
+    public static boolean Close = false;
+
     public RobotController() {
 		main = new Gui();
-        keyboard = new KeyboardAnimation(main, 0);
-        keyboard.addAction("LEFT");
-        keyboard.addAction("RIGHT");
-        keyboard.addAction("UP");
-        keyboard.addAction("DOWN");
+        keyboard = new KeyboardAnimation(main, 0, tower, harpune, funnel);
+        keyboard.addAction("LEFT", EComAction.TowMoveLeft);
+        keyboard.addAction("RIGHT", EComAction.TowMoveRight );
+        keyboard.addAction("UP", EComAction.HarFire);
+        keyboard.addAction("DOWN", EComAction.HarPull);
+        keyboard.addAction("w", EComAction.HarMoveUp );
+        keyboard.addAction("s", EComAction.HarMoveDown);
+        keyboard.addAction("a", EComAction.HarMoveLeft);
+        keyboard.addAction("d", EComAction.HarMoveRight);
+
+        keyboard.addAction("z", EComAction.FunOpen);
+
+        keyboard.addAction("ESC", EComAction.EXIT );
+        keyboard.addAction("SPACE", EComAction.STOP );
 
         command = new Command();
         tower = new Tower(command);
@@ -43,19 +55,21 @@ public class RobotController {
         funnel = new Funnel(command);
 
         InitMotors();
-	}
+
+        while(!Close){}
+    }
 
 
 
 
-    public void InitMotors(){
+    public static void InitMotors(){
 
         for(short i=0; i<5; i++){
             Command.InitMove(i, (short) 1);
         }
     }
 
-    public void Stop()
+    public static void Stop()
     {
         for(short i=0; i<5; i++){
             Command.StopMove(i, true);

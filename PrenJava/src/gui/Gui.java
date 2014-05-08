@@ -16,7 +16,7 @@ public class Gui extends JComponent {
 	private JPanel container;
 	private JPanel imagePanel;
 	private ImagePanel originalImage, processedImage;
-	private FilterPanel ctrlPanel;
+	//private FilterPanel ctrlPanel;
 	private ControlPanel panel;
 	private FilterSet filterSet;
 	
@@ -72,19 +72,19 @@ public class Gui extends JComponent {
 		container.setLayout(new BoxLayout(container ,BoxLayout.Y_AXIS));
 		imagePanel = new JPanel();
 		imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.X_AXIS));
-		ctrlPanel = new FilterPanel();
+		//ctrlPanel = new FilterPanel();
 		originalImage = new ImagePanel();
 		processedImage = new ImagePanel();
 		imagePanel.add(originalImage);
 		imagePanel.add(processedImage);
-		container.add(ctrlPanel);
+		//container.add(ctrlPanel);
 		container.add(imagePanel);
 		//frame.add(container);
 		panel = new ControlPanel();
 		frame.add(panel);
 		frame.setVisible(true);
 		
-		filterSet = new FilterSet();
-		ctrlPanel.setfilterPicker(filterSet);
+		//filterSet = new FilterSet();
+		//ctrlPanel.setfilterPicker(filterSet);
 	}
 }

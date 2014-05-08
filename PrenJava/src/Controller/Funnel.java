@@ -1,5 +1,7 @@
 package Controller;
 
+import java.util.Date;
+
 public class Funnel {
 	
 	private Command com;
@@ -10,5 +12,7 @@ public class Funnel {
 	}
 	
 	
-	public void Open(){}
+	public void Open(){
+        System.out.println(new Date().toString() + ": Funnel.Open");
+    }
 }

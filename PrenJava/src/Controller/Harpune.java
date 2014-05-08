@@ -1,5 +1,6 @@
 package Controller;
 
+import java.util.Date;
 import java.util.Timer;
 
 public class Harpune {
@@ -16,6 +17,7 @@ public class Harpune {
 	//Abschuss = SetPin 1 High und SetPin 1 Low
 	public void Fire()
 	{
+        System.out.println(new Date().toString() + ": Harpune.Fire");
 		Command.SetPin((short)1, true);
 
 		try 
@@ -29,7 +31,34 @@ public class Harpune {
 		Command.SetPin((short)1, false);
 
 
+
 	}
 	
-	public void Pull() {}
+	public void Pull() {
+        System.out.println(new Date().toString() + ": Harpune.Pull");
+    }
+
+    public void MoveLeft(){
+        System.out.println(new Date().toString() + ": Harpune.MoveLeft");
+        com.Send(Command.MoveTo((short)2, (short)2, (short)40, (short)0, (short)0, (short)0));
+
+    }
+
+    public void MoveRight(){
+        System.out.println(new Date().toString() + ": Harpune.MoveRight");
+        com.Send(Command.MoveTo((short)2, (short)1, (short)40, (short)0, (short)0, (short)0));
+
+    }
+
+    public void MoveUp(){
+        System.out.println(new Date().toString() + ": Harpune.MoveUp");
+        com.Send(Command.MoveTo((short)3, (short)2, (short)40, (short)0, (short)0, (short)0));
+
+    }
+
+    public void MoveDown(){
+        System.out.println(new Date().toString() + ": Harpune.MoveDown");
+        com.Send(Command.MoveTo((short)3, (short)1, (short)40, (short)0, (short)0, (short)0));
+
+    }
 }
