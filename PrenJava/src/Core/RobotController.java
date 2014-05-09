@@ -1,8 +1,6 @@
 package Core;
 
 import Common.EComAction;
-//
-
 import gui.Gui;
 import Controller.Aimbot;
 import Controller.Command;
@@ -12,6 +10,7 @@ import Controller.Scanner;
 import Controller.Tower;
 import ImageProcessing.FilterSet;
 import Common.KeyboardAnimation;
+import org.opencv.highgui.VideoCapture;
 
 public class RobotController {
 	
@@ -22,7 +21,7 @@ public class RobotController {
 	
 	private FilterSet filterSet;
 	
-	//private VideoCapture capture;
+	private VideoCapture capture;
 
 
     private Command command;
@@ -49,6 +48,8 @@ public class RobotController {
         keyboard.addAction("ESC", EComAction.EXIT );
         keyboard.addAction("SPACE", EComAction.STOP );
 
+        while(!Close){}
+
         command = new Command();
         tower = new Tower(command);
         harpune = new Harpune(command);
@@ -56,7 +57,7 @@ public class RobotController {
 
         InitMotors();
 
-        while(!Close){}
+
     }
 
 
