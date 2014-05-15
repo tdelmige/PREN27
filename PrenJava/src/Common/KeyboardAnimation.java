@@ -17,7 +17,7 @@ public class KeyboardAnimation implements ActionListener
 	private final static String PRESSED = "pressed ";
 	private final static String RELEASED = "released ";
 
-	private JComponent component;
+	private JPanel panel;
 	private Timer timer;
 	private Map<String, EComAction> pressedKeys = new HashMap<String, EComAction>();
 
@@ -25,17 +25,17 @@ public class KeyboardAnimation implements ActionListener
     private Harpune harpune;
     private Funnel funnel;
 
-	public KeyboardAnimation(JComponent component, int delay)
+	public KeyboardAnimation(JPanel panel, int delay)
 	{
-		this.component = component;
+		this.panel = panel;
 
-		timer = new Timer(delay, this);
+		timer = new Timer(delay , this);
 		timer.setInitialDelay( 0 );
 	}
 
-    public KeyboardAnimation(JComponent component, int delay, Tower tower, Harpune harpune, Funnel funnel)
+    public KeyboardAnimation(JPanel panel, int delay, Tower tower, Harpune harpune, Funnel funnel)
     {
-        this(component, delay);
+        this(panel, delay);
 
         this.tower = tower;
         this.harpune = harpune;
@@ -57,8 +57,8 @@ public class KeyboardAnimation implements ActionListener
 
 		//  Get the InputMap and ActionMap of the component
 
-		InputMap inputMap = component.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-		ActionMap actionMap = component.getActionMap();
+		InputMap inputMap = panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+		ActionMap actionMap = panel.getActionMap();
 
 		//  Create Action and add binding for the pressed key
 
@@ -107,7 +107,7 @@ public class KeyboardAnimation implements ActionListener
 
 	public void actionPerformed(ActionEvent e)
 	{
-		takeAction();
+        takeAction();
 	}
 
 	//  Move the component to its new location
@@ -134,6 +134,21 @@ public class KeyboardAnimation implements ActionListener
                     this.tower.MoveAroundRight();
                     break;
 
+                case HarMoveUp:
+                    this.harpune.MoveUp();
+                    break;
+
+                case HarMoveDown:
+                    this.harpune.MoveDown();
+                    break;
+
+                case HarMoveLeft:
+                    this.harpune.MoveLeft();
+                    break;
+
+                case HarMoveRight:
+                    this.harpune.MoveRight();
+                    break;
                 case HarFire:
                     this.harpune.Fire();
                     break;
@@ -147,7 +162,7 @@ public class KeyboardAnimation implements ActionListener
                     break;
 
                 case EXIT:
-                    RobotController.Close = true;
+                    RobotController.Exit();
                     break;
 
                 case STOP:

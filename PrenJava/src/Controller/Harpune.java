@@ -36,29 +36,30 @@ public class Harpune {
 	
 	public void Pull() {
         System.out.println(new Date().toString() + ": Harpune.Pull");
+        com.Send(Command.MoveTo((short)2, (short)2, (short)40, (short)0, (short)0, (short)0));
     }
 
     public void MoveLeft(){
         System.out.println(new Date().toString() + ": Harpune.MoveLeft");
-        com.Send(Command.MoveTo((short)2, (short)2, (short)40, (short)0, (short)0, (short)0));
+        com.Send(Command.MoveTo((short)0, (short)2, (short)40, (short)0, (short)0, (short)0));
 
     }
 
     public void MoveRight(){
         System.out.println(new Date().toString() + ": Harpune.MoveRight");
-        com.Send(Command.MoveTo((short)2, (short)1, (short)40, (short)0, (short)0, (short)0));
+        com.Send(Command.MoveTo((short)0, (short)1, (short)40, (short)0, (short)0, (short)0));
 
     }
 
     public void MoveUp(){
         System.out.println(new Date().toString() + ": Harpune.MoveUp");
-        com.Send(Command.MoveTo((short)3, (short)2, (short)40, (short)0, (short)0, (short)0));
+        com.Send(Command.MoveTo((short)1, (short)2, (short)40, (short)0, (short)0, (short)0));
 
     }
 
     public void MoveDown(){
         System.out.println(new Date().toString() + ": Harpune.MoveDown");
-        com.Send(Command.MoveTo((short)3, (short)1, (short)40, (short)0, (short)0, (short)0));
+        com.Send(Command.MoveTo((short)1, (short)1, (short)40, (short)0, (short)0, (short)0));
 
     }
 }

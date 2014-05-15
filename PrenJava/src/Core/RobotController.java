@@ -12,6 +12,9 @@ import ImageProcessing.FilterSet;
 import Common.KeyboardAnimation;
 import org.opencv.highgui.VideoCapture;
 
+import javax.swing.*;
+import java.util.Date;
+
 public class RobotController {
 	
 	private Gui main;
@@ -32,30 +35,43 @@ public class RobotController {
     public static boolean Close = false;
 
     public RobotController() {
-		main = new Gui();
-        keyboard = new KeyboardAnimation(main, 0, tower, harpune, funnel);
-        keyboard.addAction("LEFT", EComAction.TowMoveLeft);
-        keyboard.addAction("RIGHT", EComAction.TowMoveRight );
-        keyboard.addAction("UP", EComAction.HarFire);
-        keyboard.addAction("DOWN", EComAction.HarPull);
-        keyboard.addAction("w", EComAction.HarMoveUp );
-        keyboard.addAction("s", EComAction.HarMoveDown);
-        keyboard.addAction("a", EComAction.HarMoveLeft);
-        keyboard.addAction("d", EComAction.HarMoveRight);
 
-        keyboard.addAction("z", EComAction.FunOpen);
-
-        keyboard.addAction("ESC", EComAction.EXIT );
-        keyboard.addAction("SPACE", EComAction.STOP );
-
-        while(!Close){}
+        main = new Gui();
 
         command = new Command();
         tower = new Tower(command);
         harpune = new Harpune(command);
         funnel = new Funnel(command);
 
-        InitMotors();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+
+                keyboard = new KeyboardAnimation(main.getPanel(), 400, tower, harpune, funnel);
+                keyboard.addAction("LEFT", EComAction.TowMoveLeft);
+                keyboard.addAction("RIGHT", EComAction.TowMoveRight );
+                keyboard.addAction("UP", EComAction.HarFire);
+                keyboard.addAction("DOWN", EComAction.HarPull);
+                keyboard.addAction("W", EComAction.HarMoveUp );
+                keyboard.addAction("A", EComAction.HarMoveLeft);
+                keyboard.addAction("D", EComAction.HarMoveRight);
+                keyboard.addAction("S", EComAction.HarMoveDown);
+
+                keyboard.addAction("Z", EComAction.FunOpen);
+
+                keyboard.addAction("ESCAPE", EComAction.EXIT );
+                keyboard.addAction("ENTER", EComAction.STOP );
+            }
+        });
+
+
+        while(!Close){
+
+        }
+
+
+
+        //InitMotors();
 
 
     }
@@ -72,15 +88,26 @@ public class RobotController {
 
     public static void Stop()
     {
+        System.out.println(new Date().toString() + ": RobotController.Stop");
+
         for(short i=0; i<5; i++){
             Command.StopMove(i, true);
         }
     }
 
+    public static void Exit(){
+
+        System.out.println(new Date().toString() + ": RobotController.Exit");
+        int q = JOptionPane.showConfirmDialog(null, "Anwendung schliessen?", "Exit", JOptionPane.YES_NO_OPTION);
+
+        if (q == 0){
+            System.exit(0);}
+        else{
+
+        }
+    }
+
     public void StartMoves(){
-
-
-
 
         InitMotors();
         tower.MoveRight();

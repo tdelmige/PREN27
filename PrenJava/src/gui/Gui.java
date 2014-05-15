@@ -19,11 +19,13 @@ public class Gui extends JComponent {
 	private FilterPanel ctrlPanel;
 	private ControlPanel panel;
 	private FilterSet filterSet;
+
+    public JPanel getPanel(){return container;}
 	
 	public Gui() {
 		frame = new JFrame("Main");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		//frame.setSize(1400, 600);
+		frame.setSize(1400, 600);
 		frame.addWindowListener(new WindowListener(){
 
 			@Override
