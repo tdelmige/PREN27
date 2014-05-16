@@ -22,6 +22,8 @@ public class Gui extends JComponent {
 
     public JPanel getPanel(){return container;}
 	
+    private nGui gui;
+
 	public Gui() {
 		frame = new JFrame("Main");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
