@@ -58,6 +58,7 @@ public class RobotController {
                 keyboard.addAction("S", EComAction.HarMoveDown);
 
                 keyboard.addAction("Z", EComAction.FunOpen);
+                keyboard.addAction("U", EComAction.FunClose);
 
                 keyboard.addAction("ESCAPE", EComAction.EXIT );
                 keyboard.addAction("ENTER", EComAction.STOP );

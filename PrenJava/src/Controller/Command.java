@@ -20,6 +20,7 @@ public class Command implements IObserver<IMessage>{
 	private static final byte GoHome = 0x0B;
 	private static final byte SaveWayPoint = 0x0C;
 	private static final byte MoveToWayPoint = 0x0D;
+    private static final byte DCMove = 0x0E;
 	
 	private static final short  byteLength = 10;
 	private static ComPort com = null;
@@ -31,7 +32,7 @@ public class Command implements IObserver<IMessage>{
 	
 	static 
 	{		
-		ComPort.PortNr = "COM1";
+		ComPort.PortNr = "COM4";
 		com = new ComPort();
 		
 	}
@@ -44,7 +45,7 @@ public class Command implements IObserver<IMessage>{
 	
 	public void Send(byte[] cmd)
 	{
-		//über event lösen = answer auswerten
+		//ï¿½ber event lï¿½sen = answer auswerten
 		while(!com.Write(cmd, comAdr))
 		{
 			//String exception = com.LastResponse();
@@ -207,6 +208,18 @@ public class Command implements IObserver<IMessage>{
 		
 		return cmd;
 	}
+
+    public static byte[] DCMove(short dir, int time1, int time2, boolean block){
+
+        byte[] cmd = new byte[byteLength];
+        cmd[0] = DCMove;
+        cmd[1] = (byte) dir;
+        cmd[2] = (byte) time1;
+        cmd[3] = (byte) time2;
+        cmd[4] = (byte) (block ? 1 : 0);
+
+        return cmd;
+    }
 
 	@Override
 	public void update(IMessage arg) {

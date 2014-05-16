@@ -161,6 +161,10 @@ public class KeyboardAnimation implements ActionListener
                     this.funnel.Open();
                     break;
 
+                case FunClose:
+                    this.funnel.Close();
+                    break;
+
                 case EXIT:
                     RobotController.Exit();
                     break;

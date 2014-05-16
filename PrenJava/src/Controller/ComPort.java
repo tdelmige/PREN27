@@ -2,6 +2,8 @@ package Controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Stack;
 
 import javax.swing.Timer;
@@ -16,7 +18,7 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
 	private String[] ports;
 	private SerialPort port;
 	public static String PortNr;
-	public static final short LengthResponse = 11;
+	public static final short LengthResponse = 4;
 	private byte[] lastResponse = null;
 	private Stack<byte[]> respStack = null;
 	private Timer timer;	
@@ -44,7 +46,7 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
 		
         try {
         	port.openPort();//Open serial port
-        	port.setParams(SerialPort.BAUDRATE_9600, 
+        	port.setParams(SerialPort.BAUDRATE_115200,
                                  SerialPort.DATABITS_8,
                                  SerialPort.STOPBITS_1,
                                  SerialPort.PARITY_NONE);//Set params. Also you can set params by this string: serialPort.setParams(9600, 8, 1, 0);
@@ -103,10 +105,12 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
 	@Override
 	public void serialEvent(SerialPortEvent event) {
 		if(event.isRXCHAR()){//If data is available
-            if(event.getEventValue() == LengthResponse) {//Check bytes count in the input buffer
+            //if(event.getEventValue() == LengthResponse) {//Check bytes count in the input buffer
                 //Read data, if 10 bytes available 
                 try {
-                    byte[] buffer = port.readBytes(LengthResponse);
+                    //byte[] buffer = port.readBytes(LengthResponse);
+                    byte[] buffer = port.readBytes();
+                    System.out.println(new Date().toString() + ": Received = " +  Arrays.toString(buffer));
                     lastResponse = buffer;
                     respStack.add(buffer);
                     this.lock = false;
@@ -117,7 +121,7 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
                 catch (SerialPortException ex) {
                     System.out.println(ex);
                 }
-            }
+            //}
         }
         else if(event.isCTS()){//If CTS line has changed state
             if(event.getEventValue() == 1){//If line is ON
