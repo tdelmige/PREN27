@@ -12,8 +12,12 @@ import org.opencv.core.Rect;
  * @author raffaelsteinmann
  */
 public class Cube {
-    
+
     private Point Center;
+    private Point currentPoint;
+    private Point lastPoint;
+    private Point startingPoint;
+
     private Point UpperLeft;
     private Point UpperRight;
     private Point LowerLeft;
@@ -34,6 +38,31 @@ public class Cube {
 	public Point getCenter() {
         return Center;
     }
+
+    public Point getLastPoint() {
+        return this.lastPoint;
+    }
+
+    public void setLastPoint(Point p) {
+        this.lastPoint = p;
+    }
+
+    public Point getStartingPoint() {
+        return this.startingPoint;
+    }
+
+    public void setStartingPoint(Point p){
+        this.startingPoint = p;
+    }
+
+    public Point getCurrentPoint() {
+        return this.currentPoint;
+    }
+
+    public void setCurrentPoint(Point p) {
+        this.currentPoint = p;
+    }
+
 
     public void setCenter(Point Center) {
         this.Center = Center;
@@ -85,6 +114,8 @@ public class Cube {
                 boundingRect.y + boundingRect.height);
         this.LowerRight = new Point(boundingRect.x + boundingRect.width,
                 boundingRect.y + boundingRect.height);
+
+        this.boundingRect = boundingRect;
         
     }
     

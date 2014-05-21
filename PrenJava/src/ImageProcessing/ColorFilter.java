@@ -13,6 +13,11 @@ import org.opencv.core.Scalar;
  * @author raffaelsteinmann
  */
 public class ColorFilter {
+
+    public static final String C_RED = "Rot";
+    public static final String C_YELLOW = "Gelb";
+    public static final String C_GREEN = "Gruen";
+    public static final String C_BLUE = "Blau";
     
     private Mat ProcessedImage = new Mat();
    
@@ -41,6 +46,7 @@ public class ColorFilter {
            Mat tmp = new Mat();
            Core.inRange(ConvertedImage, Lower, Upper, tmp);
            Core.bitwise_and(ProcessedImage, ProcessedImage, tmp);
+           tmp.release();
         }
         return ProcessedImage;
         
@@ -53,7 +59,28 @@ public class ColorFilter {
     public void setUpper(Scalar Upper) {
         this.Upper = Upper;
     }
+
+    public Scalar getLower() {
+        return Lower;
+    }
+
+    public Scalar getLower2() {
+        return Lower2;
+    }
     
-    
-    
+    public Scalar getUpper() {
+        return Upper;
+    }
+
+    public Scalar getUpper2() {
+        return Upper2;
+    }
+
+    public String toString() {
+        String s = "Lower: " + Lower + " - " + "Upper: " + Upper;
+        if (Lower2 != null && Upper2 != null) {
+            s = s + "\nLower2: " + Lower2 + " - " + "Upper2: " + Upper2;
+        }
+        return s;
+    }
 }

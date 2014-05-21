@@ -6,18 +6,15 @@ package ImageProcessing;
 
 import java.util.ArrayList;
 
-import org.opencv.core.Mat;
-import org.opencv.core.Core;
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
+import org.opencv.core.*;
+import org.opencv.imgproc.Imgproc;
 
 /**
  *
  * @author raffaelsteinmann
  */
-public class CubeCounter {
-	
+public class CubeCounter implements Runnable {
+
     private ArrayList<Cube> PreviousCubes = new ArrayList<>();
     private ArrayList<Cube> newCubes = new ArrayList<>();
     private CubeFinder Finder;
@@ -25,7 +22,7 @@ public class CubeCounter {
     private Mat OriginalImage;
     private Mat ProcessedImage;
     private TargetZone targetZone;
-    private boolean SameCube;
+    private int Count;
 
     public CubeCounter(ColorFilter Filter, double minArea) {
         this.Filter = Filter;
@@ -35,90 +32,94 @@ public class CubeCounter {
     public void setFilter(ColorFilter Filter) {
         this.Filter = Filter;
     }
-    
+
     public Mat getImage() {
         return OriginalImage;
     }
-    
-    public Mat getProcessedImage(){
-        return ProcessedImage;
+
+
+    public TargetZone getTargetZone() {
+        return this.targetZone;
     }
-    
-    public void analyze(Mat nextFrame) {
-        OriginalImage = nextFrame.clone();
-        ProcessedImage = Filter.filter(nextFrame);
+
+    public void setTargetZone(TargetZone targetZone) {
+        this.targetZone = targetZone;
+    }
+
+    public void count() {
+        ArrayList<Cube> tmp = null;
+        for (Cube newCube : newCubes){
+            if(targetZone.contains(newCube)) {
+                if(tmp==null) {
+                    tmp = new ArrayList<>();
+                }
+                tmp.add(newCube);
+                if (PreviousCubes != null) {
+                    if (alreadyCounted(newCube) == false) {
+                        Count++;
+                    }
+                } else {
+                    Count++;
+                }
+            }
+        }
+        PreviousCubes = tmp;
+    }
+
+    private boolean alreadyCounted(Cube newCube) {
+        for (Cube previousCube : PreviousCubes) {
+            if (previousCube.getBoundingRect().contains(newCube.getCenter())) {
+                System.out.println("Already counted");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void resetCount() {
+        Count = 0;
+    }
+
+    public int getCount() {
+        return this.Count;
+    }
+
+    public Mat draw(Mat img) {
+        this.OriginalImage = img;
+        Point topLeft, topRight;
+        Point bottomLeft, bottomRight;
+        topLeft = new Point(targetZone.getStart(), 0);
+        topRight = new Point(targetZone.getEnd(), 0);
+        bottomLeft = new Point(targetZone.getStart(), this.OriginalImage.height());
+        bottomRight = new Point(targetZone.getEnd(), this.OriginalImage.width());
+
+        Core.line(this.OriginalImage, topLeft, bottomLeft, new Scalar(255,255,255));
+        Core.line(this.OriginalImage, topRight, bottomRight, new Scalar(255,255,255));
+
+        for(Cube C : newCubes) {
+            Core.circle(this.OriginalImage, C.getCenter(), 2, new Scalar(255, 255, 0));
+            Core.rectangle(this.OriginalImage, C.getUpperLeft(), C.getLowerRight(), new Scalar(255, 255, 0));
+        }
+        return this.OriginalImage;
+    }
+
+    public void setNextFrame(Mat nextFrame) {
+        ProcessedImage = nextFrame;
+        ProcessedImage = Filter.filter(ProcessedImage);
+    }
+
+    public void analyzeSimpleFrame(Mat frame) {
+        ProcessedImage = frame;
+        ProcessedImage = Filter.filter(ProcessedImage);
+        newCubes = Finder.findCubes(ProcessedImage);
+        count();
+    }
+
+    @Override
+    public void run() {
         Finder.setInputImage(ProcessedImage);
         Finder.findCubes();
         newCubes = Finder.getCubes();
-        drawCenterpoints();
-        drawRectangles();
-        //count();
-    }   
-    
-    public void count() {
-    	ArrayList<Cube> tmp = null;
-		for (Cube newCube : newCubes){
-			if(targetZone.contains(newCube)) {
-				  
-				  // Save Cube for next iteration
-				  if(tmp==null) {
-					  tmp = new ArrayList<>();
-				  }
-				  tmp.add(newCube);
-				  
-				  SameCube = false;
-				  for (Cube previousCube : PreviousCubes){
-					  // check if same cubes and count accordingly...
-					  if(IsSameCube(newCube, previousCube))
-						  SameCube = true;
-						  break;
-				  }
-			  }
-		  }
-		if(tmp != null) {
-			PreviousCubes = tmp;
-		}
-   }
-   
-   private boolean IsSameCube(Cube newCube, Cube oldCube){
-	   boolean Same = false;
-	   int minDistance, Distance;
-	   
-	   minDistance = calcDistanceFromPoints(newCube.getCenter(), newCube.getUpperLeft());
-	   Distance = calcDistanceFromPoints(newCube.getCenter(), oldCube.getCenter());
-	   
-	   if (Distance < minDistance) {
-		   Same = true;
-	   }
-	   
-	   return Same;
-	   
-   }
-   
-   private int calcDistanceFromPoints(Point p1, Point p2) {
-	   
-	   double a = p1.x - p2.x;
-	   if(a < 0) a = a *-1;
-	   
-	   double b = p2.y - p1.y;
-	   if(b < 0) b = b * -1;
-	   
-	   double c;
-	   
-	   c = Math.pow(Math.pow(a, 2) + Math.pow(b, 2),1/2);
-	   
-	   return (int)c;
-   }
-   
-   private void drawCenterpoints(){
-	   for (Cube C : newCubes) {
-		   Core.circle(OriginalImage, C.getCenter(), 2, new Scalar(255,255,0));
-	   }
-   }
-   
-   private void drawRectangles(){
-	   for (Cube C : newCubes) {
-		   Core.rectangle(this.OriginalImage, C.getUpperLeft(), C.getLowerRight(), new Scalar(255,255,0));
-	   }
-   }
+        count();
+    }
 }

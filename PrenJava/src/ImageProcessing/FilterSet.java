@@ -1,15 +1,20 @@
 package ImageProcessing;
 
 
+import org.opencv.core.Scalar;
+
+
 public class FilterSet {
-	
+    private String profile;
 	private ColorFilter redFilter;
 	private ColorFilter yellowFilter;
 	private ColorFilter blueFilter;
 	private ColorFilter greenFilter;
 	
 	public FilterSet() {}
-	
+
+    public String getProfile() { return profile; }
+    public void setProfile(String profile) { this.profile = profile; }
 	public ColorFilter getRedFilter() {
 		return redFilter;
 	}

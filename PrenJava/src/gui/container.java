@@ -1,14 +1,26 @@
 package gui;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+
+import ImageProcessing.ColorFilter;
+import ImageProcessing.Crosshair;
+import ImageProcessing.CubeFinder;
+import org.opencv.core.Mat;
+import org.opencv.core.Scalar;
 
 /**
  * Created by Raffi on 06.05.2014.
  */
-public class nGui {
+public class container {
     private JPanel container;
     private JTabbedPane tabbedPanel;
     private JPanel panFilter;
@@ -19,11 +31,11 @@ public class nGui {
     private JSlider slidSatLow;
     private JTextField txtHueLow;
     private JSlider slidSatUpper;
-    private JTextField textField2;
+    private JTextField txtSatUpper;
     private JTextField txtHueUpper;
-    private JTextField textField4;
-    private JTextField textField5;
-    private JTextField textField6;
+    private JTextField txtSatLow;
+    private JTextField txtValUpper;
+    private JTextField txtValLow;
     private JSlider slidValUpper;
     private JSlider slidHue2Low;
     private JSlider slidHue2Upper;
@@ -37,44 +49,169 @@ public class nGui {
     private JButton blueOnButton;
     private JButton yellowOnButton;
     private JButton greenOnButton;
-    private JButton enableButton;
+    private JButton startButton;
     private JTextField textField1;
-    private JButton moveUpButton;
-    private JTextField textField3;
-    private JButton moveDownButton;
+    private JButton setButton1;
     private JTextField textField7;
     private JButton setButton;
-    private JButton rightButton;
-    private JButton leftButton;
-    private JButton upButton;
-    private JButton downButton;
-    private JTextField textField8;
-    private JButton pullButton;
-    private JButton fireButton;
+    private JLabel originalImage;
+    private JLabel processedImage;
+    private JPanel panImages;
+    private JPanel panControls;
+    private JPanel origImage;
+    private JPanel statusBar;
+    private JButton stopButton;
+    private JButton enableTargetDetectionButton;
+    private JLabel imageAiming;
+    private ImageIcon originalIcon;
+    private ImageIcon processedIcon;
+    private ImageIcon image;
 
-    public nGui() {
-        cboColor.addActionListener(new ActionListener() {
-            /**
-             * Invoked when an action occurs.
-             *
-             * @param e
-             */
+    private Gui parent;
+    private ColorFilter colorFilter;
+    private CubeFinder cubeFinder;
+    private Crosshair crosshair;
+
+    public container() {
+        createUIComponents();
+        slidHueLow.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                parent.fireSetFilter(createColorFilter());
+                updateTextFields();
+            }
+        });
+        slidHueUpper.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                parent.fireSetFilter(createColorFilter());
+                updateTextFields();
+            }
+        });
+        slidSatLow.addChangeListener( new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                parent.fireSetFilter(createColorFilter());
+                updateTextFields();
+            }
+        });
+        slidSatUpper.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                parent.fireSetFilter(createColorFilter());
+                updateTextFields();
+            }
+        });
+        slidValLow.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                parent.fireSetFilter(createColorFilter());
+                updateTextFields();
+            }
+        });
+        slidValUpper.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                parent.fireSetFilter(createColorFilter());
+                updateTextFields();
+            }
+        });
+        startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (cboColor.getSelectedIndex() == 1) {
-                    slidHue2Low.setEnabled(true);
-                    slidHue2Upper.setEnabled(true);
-                }
+                parent.fireStartFiltering();
+            }
+        });
+
+        stopButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                parent.fireStopFiltering();
+            }
+        });
+
+        tabbedPanel.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                parent.fireStartFiltering();
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                super.focusLost(e);
             }
         });
     }
 
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("nGui");
-        frame.setContentPane(new nGui().container);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
+        processedIcon = new ImageIcon();
+        originalIcon = new ImageIcon();
+        image = new ImageIcon();
+        originalImage.setIcon(originalIcon);
+        processedImage.setIcon(processedIcon);
+        imageAiming.setIcon(image);
+    }
+
+    private ColorFilter createColorFilter() {
+        double dLHue = slidHueLow.getValue();
+        double dLVal = slidValLow.getValue();
+        double dLSat = slidSatLow.getValue();
+        double dUHue = slidHueUpper.getValue();
+        double dUVal = slidValUpper.getValue();
+        double dUSat = slidSatUpper.getValue();
+
+        Scalar lScalar = new Scalar(dLHue, dLSat, dLVal);
+        Scalar uScalar = new Scalar(dUHue, dUSat, dUVal);
+
+        colorFilter = new ColorFilter(lScalar, uScalar);
+        return colorFilter;
+    }
+
+    private void updateTextFields() {
+        txtHueLow.setText(Integer.toString(slidHueLow.getValue()));
+        txtHueUpper.setText(Integer.toString(slidHueUpper.getValue()));
+        txtSatLow.setText(Integer.toString(slidSatLow.getValue()));
+        txtSatUpper.setText(Integer.toString(slidSatUpper.getValue()));
+        txtValLow.setText(Integer.toString(slidValLow.getValue()));
+        txtValUpper.setText(Integer.toString(slidValUpper.getValue()));
+    }
+
+    public void showOriginalImage(Mat img){
+        originalIcon.setImage(toBufferedImage(img));
+        originalImage.updateUI();
+    }
+
+    public void showProcessedImage(Mat img){
+        processedIcon.setImage(toBufferedImage(img));
+        processedImage.updateUI();
+    }
+
+    public void showImage(Mat m) {
+        image.setImage(toBufferedImage(m));
+        imageAiming.updateUI();
+    }
+
+    public Image toBufferedImage(Mat m){
+        int type = BufferedImage.TYPE_BYTE_GRAY;
+        if ( m.channels() > 1 ) {
+            type = BufferedImage.TYPE_3BYTE_BGR;
+        }
+        int bufferSize = m.channels()*m.cols()*m.rows();
+        byte [] b = new byte[bufferSize];
+        m.get(0,0,b); // get all the pixels
+        BufferedImage image = new BufferedImage(m.cols(),m.rows(), type);
+        final byte[] targetPixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+        System.arraycopy(b, 0, targetPixels, 0, b.length);
+        return image;
+    }
+
+    public JPanel getContainer() {
+        return this.container;
+    }
+
+    public void setParent(Gui frame) {
+        this.parent = frame;
     }
 
     {
@@ -130,9 +267,9 @@ public class nGui {
         txtHueUpper = new JTextField();
         txtHueUpper.setHorizontalAlignment(0);
         panel3.add(txtHueUpper, new com.intellij.uiDesigner.core.GridConstraints(1, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(35, -1), null, 0, false));
-        textField4 = new JTextField();
-        textField4.setHorizontalAlignment(0);
-        panel3.add(textField4, new com.intellij.uiDesigner.core.GridConstraints(6, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(35, -1), null, 0, false));
+        txtSatLow = new JTextField();
+        txtSatLow.setHorizontalAlignment(0);
+        panel3.add(txtSatLow, new com.intellij.uiDesigner.core.GridConstraints(6, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(35, -1), null, 0, false));
         final JLabel label2 = new JLabel();
         label2.setText("Sat:");
         panel3.add(label2, new com.intellij.uiDesigner.core.GridConstraints(6, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -144,15 +281,15 @@ public class nGui {
         slidSatUpper.setValue(0);
         slidSatUpper.setValueIsAdjusting(false);
         panel3.add(slidSatUpper, new com.intellij.uiDesigner.core.GridConstraints(7, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(200, -1), null, 0, false));
-        textField2 = new JTextField();
-        textField2.setHorizontalAlignment(0);
-        panel3.add(textField2, new com.intellij.uiDesigner.core.GridConstraints(7, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(35, -1), null, 0, false));
-        textField6 = new JTextField();
-        textField6.setHorizontalAlignment(0);
-        panel3.add(textField6, new com.intellij.uiDesigner.core.GridConstraints(9, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(35, -1), null, 0, false));
-        textField5 = new JTextField();
-        textField5.setHorizontalAlignment(0);
-        panel3.add(textField5, new com.intellij.uiDesigner.core.GridConstraints(10, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(35, -1), null, 0, false));
+        txtSatUpper = new JTextField();
+        txtSatUpper.setHorizontalAlignment(0);
+        panel3.add(txtSatUpper, new com.intellij.uiDesigner.core.GridConstraints(7, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(35, -1), null, 0, false));
+        txtValLow = new JTextField();
+        txtValLow.setHorizontalAlignment(0);
+        panel3.add(txtValLow, new com.intellij.uiDesigner.core.GridConstraints(9, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(35, -1), null, 0, false));
+        txtValUpper = new JTextField();
+        txtValUpper.setHorizontalAlignment(0);
+        panel3.add(txtValUpper, new com.intellij.uiDesigner.core.GridConstraints(10, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(35, -1), null, 0, false));
         slidValUpper = new JSlider();
         slidValUpper.setMaximum(255);
         slidValUpper.setValue(0);
@@ -201,9 +338,9 @@ public class nGui {
         panel5.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 1, new Insets(5, 5, 5, 5), -1, -1));
         panel1.add(panel5, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         panel5.setBorder(BorderFactory.createTitledBorder("Target Detection"));
-        enableButton = new JButton();
-        enableButton.setText("Enable ");
-        panel5.add(enableButton, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        startButton = new JButton();
+        startButton.setText("Enable ");
+        panel5.add(startButton, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final com.intellij.uiDesigner.core.Spacer spacer5 = new com.intellij.uiDesigner.core.Spacer();
         panel1.add(spacer5, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 15), null, 0, false));
         final JPanel panel6 = new JPanel();
@@ -271,14 +408,9 @@ public class nGui {
         panel14.add(label7, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         textField1 = new JTextField();
         panel14.add(textField1, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        moveUpButton = new JButton();
-        moveUpButton.setText("Move Up");
-        panel14.add(moveUpButton, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        textField3 = new JTextField();
-        panel14.add(textField3, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        moveDownButton = new JButton();
-        moveDownButton.setText("Move Down");
-        panel14.add(moveDownButton, new com.intellij.uiDesigner.core.GridConstraints(2, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        setButton1 = new JButton();
+        setButton1.setText("Move Up");
+        panel14.add(setButton1, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel15 = new JPanel();
         panel15.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 2, new Insets(5, 5, 5, 5), -1, -1));
         panel13.add(panel15, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_NORTH, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -299,28 +431,6 @@ public class nGui {
         panel16.setEnabled(false);
         panTarget.add(panel16, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_NORTHWEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         panel16.setBorder(BorderFactory.createTitledBorder("Control"));
-        leftButton = new JButton();
-        leftButton.setText("Left");
-        panel16.add(leftButton, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(50, -1), null, 0, false));
-        upButton = new JButton();
-        upButton.setText("Up");
-        panel16.add(upButton, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(50, -1), null, 0, false));
-        downButton = new JButton();
-        downButton.setText("Down");
-        panel16.add(downButton, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(50, -1), null, 0, false));
-        rightButton = new JButton();
-        rightButton.setText("Right");
-        panel16.add(rightButton, new com.intellij.uiDesigner.core.GridConstraints(1, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(50, -1), null, 0, false));
-        textField8 = new JTextField();
-        textField8.setText("");
-        panel16.add(textField8, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(50, -1), null, 0, false));
-        pullButton = new JButton();
-        pullButton.setText("Pull");
-        panel16.add(pullButton, new com.intellij.uiDesigner.core.GridConstraints(3, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        fireButton = new JButton();
-        fireButton.setBackground(new Color(-39322));
-        fireButton.setText("Fire");
-        panel16.add(fireButton, new com.intellij.uiDesigner.core.GridConstraints(3, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final com.intellij.uiDesigner.core.Spacer spacer8 = new com.intellij.uiDesigner.core.Spacer();
         panel16.add(spacer8, new com.intellij.uiDesigner.core.GridConstraints(2, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(-1, 10), null, 0, false));
         final JPanel panel17 = new JPanel();
@@ -340,4 +450,5 @@ public class nGui {
     public JComponent $$$getRootComponent$$$() {
         return container;
     }
+
 }

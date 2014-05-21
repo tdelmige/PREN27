@@ -6,42 +6,56 @@ package ImageProcessing;
 
 import org.opencv.core.Rect;
 import org.opencv.core.Point;
+import org.opencv.core.Size;
+
 /**
  *
  * @author raffaelsteinmann
  */
 public class TargetZone {
     
-    private int Line1;
-    private int Line2;
-    private Rect Zone;
+    private int start;
+    private int end;
+    private int width;
+    private Size imageSize;
 
-    public TargetZone(int width, Point center) {
-    	
+    public TargetZone(Size imageSize, int width) {
+        this.width = width;
+        this.imageSize = imageSize;
     }
 
-    public int getLine1() {
-        return Line1;
+    public int getStart() {
+        return start;
     }
 
-    public void setLine1(int Line1) {
-        this.Line1 = Line1;
+    public int getEnd() {
+        return end;
     }
 
-    public int getLine2() {
-        return Line2;
+    public void setWidth(int width) {
+        this.width = width;
+        setUpTargetZone();
     }
 
-    public void setLine2(int Line2) {
-        this.Line2 = Line2;
+    public int getWidth() {
+        return width;
+    }
+
+    private void setUpTargetZone() {
+        start = (int) (imageSize.width / 2) - (width / 2);
+        end = start + width;
     }
     
     public boolean contains(Cube cube){
-    	if (cube.getCenter().x > Line1 && cube.getCenter().x < Line2) {
+    	if (cube.getCenter().x > start && cube.getCenter().x < end) {
     		return true;
     	} else {
     		return false;
     	}
+    }
+
+    public String toString() {
+        return start + " : " + end;
     }
     
 }

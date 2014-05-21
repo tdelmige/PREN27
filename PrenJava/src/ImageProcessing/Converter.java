@@ -34,7 +34,7 @@ public class Converter {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+        matOfByte.release();
         return bufImage;
     }
     
