@@ -8,9 +8,11 @@ import org.opencv.core.Size;
  */
 public interface GUIListener {
     void setFilter(ColorFilter filter, String profile, String color);
-    void setCrosshairSize(Size s);
-    void setDetection(boolean b);
-    void startFiltering();
-    void stopFiltering();
+    void setCrosshairSize(Size size);
+    void setCrosshairOffset(int offset);
+    void startFilterPicker();
+    void stopFilterPicker();
+    void startManualAim();
+    void stopManualAim();
     void save();
 }

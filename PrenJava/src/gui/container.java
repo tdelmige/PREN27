@@ -6,8 +6,6 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
@@ -16,6 +14,7 @@ import ImageProcessing.Crosshair;
 import ImageProcessing.CubeFinder;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 
 /**
  * Created by Raffi on 06.05.2014.
@@ -50,9 +49,9 @@ public class container {
     private JButton yellowOnButton;
     private JButton greenOnButton;
     private JButton startButton;
-    private JTextField textField1;
+    private JTextField txtPosition;
     private JButton setButton1;
-    private JTextField textField7;
+    private JTextField txtCrosshairSize;
     private JButton setButton;
     private JLabel originalImage;
     private JLabel processedImage;
@@ -63,6 +62,8 @@ public class container {
     private JButton stopButton;
     private JButton enableTargetDetectionButton;
     private JLabel imageAiming;
+    private JButton startButton1;
+    private JButton stopButton1;
     private ImageIcon originalIcon;
     private ImageIcon processedIcon;
     private ImageIcon image;
@@ -74,6 +75,11 @@ public class container {
 
     public container() {
         createUIComponents();
+        createListener();
+
+    }
+
+    private void createListener() {
         slidHueLow.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -119,26 +125,46 @@ public class container {
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                startButton.setEnabled(false);
+                stopButton.setEnabled(true);
                 parent.fireStartFiltering();
             }
         });
-
         stopButton.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                startButton.setEnabled(true);
+                stopButton.setEnabled(false);
                 parent.fireStopFiltering();
             }
         });
-
-        tabbedPanel.addFocusListener(new FocusAdapter() {
+        startButton1.addActionListener(new ActionListener() {
             @Override
-            public void focusGained(FocusEvent e) {
-                parent.fireStartFiltering();
+            public void actionPerformed(ActionEvent e) {
+                startButton1.setEnabled(false);
+                parent.fireStartManualAim();
             }
-
+        });
+        stopButton1.addActionListener(new ActionListener() {
             @Override
-            public void focusLost(FocusEvent e) {
-                super.focusLost(e);
+            public void actionPerformed(ActionEvent e) {
+                startButton1.setEnabled(true);
+                parent.fireStopManualAim();
+            }
+        });
+        setButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int i = Integer.valueOf(txtCrosshairSize.getText());
+                Size size = new Size(i,i);
+                parent.fireSetCrosshairSize(size);
+            }
+        });
+        setButton1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int offset = Integer.valueOf(txtPosition.getText());
+                parent.fireSetCrosshairOffset(offset);
             }
         });
     }
@@ -406,8 +432,8 @@ public class container {
         final JLabel label7 = new JLabel();
         label7.setText("+20px");
         panel14.add(label7, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        textField1 = new JTextField();
-        panel14.add(textField1, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        txtPosition = new JTextField();
+        panel14.add(txtPosition, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         setButton1 = new JButton();
         setButton1.setText("Move Up");
         panel14.add(setButton1, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -421,8 +447,8 @@ public class container {
         final JLabel label9 = new JLabel();
         label9.setText("5px");
         panel15.add(label9, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        textField7 = new JTextField();
-        panel15.add(textField7, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        txtCrosshairSize = new JTextField();
+        panel15.add(txtCrosshairSize, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         setButton = new JButton();
         setButton.setText("Set");
         panel15.add(setButton, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));

@@ -20,7 +20,9 @@ public class ColorFilter {
     public static final String C_BLUE = "Blau";
     
     private Mat ProcessedImage = new Mat();
-   
+
+    private String color;
+    private String profile;
     private Scalar Lower;
     private Scalar Upper;
     private Scalar Lower2;
@@ -50,6 +52,22 @@ public class ColorFilter {
         }
         return ProcessedImage;
         
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
     }
 
     public void setLower(Scalar Lower) {

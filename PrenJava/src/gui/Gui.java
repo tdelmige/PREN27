@@ -12,6 +12,7 @@ import Common.GUIListener;
 import ImageProcessing.ColorFilter;
 import ImageProcessing.FilterSet;
 import org.opencv.core.Mat;
+import org.opencv.core.Size;
 
 public class Gui extends JComponent {
 
@@ -97,9 +98,24 @@ public class Gui extends JComponent {
         listener.setFilter(filter, null, null);
     }
 
-    public void fireStartFiltering() {listener.startFiltering();}
+    public void fireStartFiltering() {listener.startFilterPicker();}
 
-    public void fireStopFiltering() {listener.stopFiltering();}
+    public void fireStopFiltering() {listener.stopFilterPicker();}
 
+    public void fireStartManualAim() {
+        listener.startManualAim();
+    }
+
+    public void fireStopManualAim() {
+        listener.stopManualAim();
+    }
+
+    public void fireSetCrosshairOffset(int offset) {
+        listener.setCrosshairOffset(offset);
+    }
+
+    public void fireSetCrosshairSize(Size size) {
+        listener.setCrosshairSize(size);
+    }
 }
 
