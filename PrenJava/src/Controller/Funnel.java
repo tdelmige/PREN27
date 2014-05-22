@@ -12,7 +12,6 @@ public class Funnel {
 		
 	}
 	
-	
 	public void Open(){
         System.out.println(new Date().toString() + ": Funnel.Open");
 

@@ -33,7 +33,8 @@ public class Harpune {
 
 
 	}
-	
+
+    // ebenfalls close bei Funnel
 	public void Pull() {
         System.out.println(new Date().toString() + ": Harpune.Pull");
         com.Send(Command.MoveTo((short)2, (short)2, (short)40, (short)0, (short)0, (short)0));
@@ -60,6 +61,19 @@ public class Harpune {
     public void MoveDown(){
         System.out.println(new Date().toString() + ": Harpune.MoveDown");
         com.Send(Command.MoveTo((short)1, (short)1, (short)40, (short)0, (short)0, (short)0));
+
+    }
+
+    public void MoveAroundLeft(){
+        System.out.println(new Date().toString() + ": Harpune.MoveAroundLeft");
+        com.Send(Command.MoveTo((short)0, (short)2, (short)40, (short)0, (short)0, (short)0));
+
+    }
+
+
+    public void MoveAroundRight(){
+        System.out.println(new Date().toString() + ": Harpune.MoveAroundRight");
+        com.Send(Command.MoveTo((short)0, (short)1, (short)40, (short)0, (short)0, (short)0));
 
     }
 }

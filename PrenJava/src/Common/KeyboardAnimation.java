@@ -126,12 +126,12 @@ public class KeyboardAnimation implements ActionListener
                     this.tower.MoveRight();
                     break;
 
-                case TowMoveAroundLeft:
-                    this.tower.MoveAroundLeft();
+                case HarMoveAroundLeft:
+                    this.harpune.MoveAroundLeft();
                     break;
 
-                case TowMoveAroundRight:
-                    this.tower.MoveAroundRight();
+                case HarMoveAroundRight:
+                    this.harpune.MoveAroundRight();
                     break;
 
                 case HarMoveUp:
