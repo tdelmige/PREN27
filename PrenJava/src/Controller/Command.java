@@ -41,6 +41,8 @@ public class Command implements IObserver<IMessage>{
 		comAdr = ++adr;
 		com.addObserver(this);
 	}
+
+    public static ComPort getComPortInst() {return com;}
 	
 	
 	public void Send(byte[] cmd)

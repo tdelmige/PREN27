@@ -41,6 +41,7 @@ public class RobotController implements GUIListener {
     private Crosshair crosshair;
 
     public static boolean Close = false;
+    public static short CamPort = 0;
 
     public RobotController() {
         instance = this;
@@ -79,11 +80,7 @@ public class RobotController implements GUIListener {
         while(!Close){
 
         }
-
-
-
         //InitMotors();
-
 
     }
 
@@ -193,7 +190,7 @@ public class RobotController implements GUIListener {
         public void run() {
             bRun = true;
             try {
-                capture = new VideoCapture(0);
+                capture = new VideoCapture(CamPort);
                 input = new Mat();
                 while (bRun) {
                     capture.read(input);

@@ -37,7 +37,6 @@ public class CubeCounter implements Runnable {
         return OriginalImage;
     }
 
-
     public TargetZone getTargetZone() {
         return this.targetZone;
     }
@@ -113,6 +112,14 @@ public class CubeCounter implements Runnable {
         ProcessedImage = Filter.filter(ProcessedImage);
         newCubes = Finder.findCubes(ProcessedImage);
         count();
+    }
+
+    public ArrayList<Cube> getCubes(Mat frame)
+    {
+        ProcessedImage = frame;
+        ProcessedImage = Filter.filter(ProcessedImage);
+        newCubes = Finder.findCubes(ProcessedImage);
+        return newCubes;
     }
 
     @Override
