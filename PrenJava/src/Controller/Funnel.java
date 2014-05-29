@@ -14,15 +14,11 @@ public class Funnel {
 	
 	public void Open(){
         System.out.println(new Date().toString() + ": Funnel.Open");
-
         com.Send(Command.DCMove((short)0, 0, 120, true));
-
     }
 
     public void Close(){
         System.out.println(new Date().toString() + ": Funnel.Close");
-
         com.Send(Command.DCMove((short)1, 0, 120, true));
-
     }
 }

@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JComponent;
 
+import Common.Color;
 import Common.GUIListener;
 import ImageProcessing.ColorFilter;
 import ImageProcessing.FilterSet;
@@ -20,7 +21,8 @@ public class Gui extends JComponent {
     private container panel;
     private GUIListener listener;
 
-    public Gui(String title) {
+    public Gui(String title, GUIListener listener) {
+        this.listener = listener;
         mainFrame = new JFrame(title);
         this.panel = new container();
         this.panel.setParent(this);
@@ -78,12 +80,20 @@ public class Gui extends JComponent {
         return panel.getContainer();
     }
 
+    public void init() {
+        panel.init();
+    }
+
     public void setOriginalImage(Mat image){
         panel.showOriginalImage(image);
     }
 
     public void setProcessedImage(Mat image){
         panel.showProcessedImage(image);
+    }
+
+    public void setColorFilter(ColorFilter colorFilter) {
+        panel.setColorFilter(colorFilter);
     }
 
     public void setImage(Mat m) {
@@ -94,8 +104,12 @@ public class Gui extends JComponent {
         this.listener = listener;
     }
 
-    public void fireSetFilter(ColorFilter filter) {
-        listener.setFilter(filter, null, null);
+    public void fireSetFilter(Color color) {
+        listener.setFilter(color);
+    }
+
+    public void fireUpdateFilter(Color color, ColorFilter colorFilter) {
+        listener.updateFilter(color, colorFilter);
     }
 
     public void fireStartFiltering() {listener.startFilterPicker();}

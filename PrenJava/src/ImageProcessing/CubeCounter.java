@@ -14,7 +14,6 @@ import org.opencv.imgproc.Imgproc;
  * @author raffaelsteinmann
  */
 public class CubeCounter implements Runnable {
-
     private ArrayList<Cube> PreviousCubes = new ArrayList<>();
     private ArrayList<Cube> newCubes = new ArrayList<>();
     private CubeFinder Finder;
@@ -68,7 +67,6 @@ public class CubeCounter implements Runnable {
     private boolean alreadyCounted(Cube newCube) {
         for (Cube previousCube : PreviousCubes) {
             if (previousCube.getBoundingRect().contains(newCube.getCenter())) {
-                System.out.println("Already counted");
                 return true;
             }
         }
@@ -103,15 +101,9 @@ public class CubeCounter implements Runnable {
     }
 
     public void setNextFrame(Mat nextFrame) {
+        setTargetZone(new TargetZone(nextFrame.size(), 30));
         ProcessedImage = nextFrame;
         ProcessedImage = Filter.filter(ProcessedImage);
-    }
-
-    public void analyzeSimpleFrame(Mat frame) {
-        ProcessedImage = frame;
-        ProcessedImage = Filter.filter(ProcessedImage);
-        newCubes = Finder.findCubes(ProcessedImage);
-        count();
     }
 
     public ArrayList<Cube> getCubes(Mat frame)
@@ -120,6 +112,10 @@ public class CubeCounter implements Runnable {
         ProcessedImage = Filter.filter(ProcessedImage);
         newCubes = Finder.findCubes(ProcessedImage);
         return newCubes;
+    }
+
+    public ColorFilter getColorFilter() {
+        return Filter;
     }
 
     @Override

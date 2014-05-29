@@ -122,4 +122,13 @@ public class Crosshair {
         }
         return false;
     }
+
+    public Point distance(Point p) {
+        int x, y;
+        Point target = new Point(verticalLine, horizontalLine);
+        x = (int)(target.x - p.x);
+        y = (int)(target.y - p.y);
+        Point point = new Point(x, y);
+        return point;
+    }
 }

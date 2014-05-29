@@ -1,10 +1,7 @@
 package Core;
 
-import Common.EComAction;
-import Common.GUIListener;
-import ImageProcessing.ColorFilter;
-import ImageProcessing.Crosshair;
-import ImageProcessing.PropertyManager;
+import Common.*;
+import ImageProcessing.*;
 import gui.Gui;
 import Controller.Aimbot;
 import Controller.Command;
@@ -12,14 +9,13 @@ import Controller.Funnel;
 import Controller.Harpune;
 import Controller.Scanner;
 import Controller.Tower;
-import ImageProcessing.FilterSet;
-import Common.KeyboardAnimation;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
 import javax.swing.*;
+import javax.swing.text.AsyncBoxView;
 import java.util.Date;
 
 public class RobotController implements GUIListener {
@@ -28,10 +24,13 @@ public class RobotController implements GUIListener {
     private Gui main;
     private KeyboardAnimation keyboard;
     private VideoCapture capture;
+    private FilterSet customFilterSet;
     private FilterSet filterSet;
     private FilterPicker filterPicker;
     private ManualAim manualAim;
     private PropertyManager propertyManager;
+    private Scanner scanner;
+    private Aimbot aimbot;
 
     private Command command;
     private Tower tower;
@@ -49,19 +48,20 @@ public class RobotController implements GUIListener {
         tower = new Tower(command);
         harpune = new Harpune(command);
         funnel = new Funnel(command);
+        filterPicker = new FilterPicker();
         propertyManager = new PropertyManager();
-
-        filterSet = propertyManager.getFilterSet("Normal");
+        filterSet = propertyManager.getFilterSet();
+        customFilterSet = propertyManager.getFilterSet();
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                main = new Gui("test");
-                main.setListener(instance);
+                main = new Gui("test", instance);
+                main.init();
                 keyboard = new KeyboardAnimation(main.getPanel(), 400, tower, harpune, funnel);
                 keyboard.addAction("LEFT", EComAction.TowMoveLeft);
                 keyboard.addAction("RIGHT", EComAction.TowMoveRight );
-                keyboard.addAction("UP", EComAction.HarFire);
+                keyboard.addAction("UP", EComAction.HarLoose);
                 keyboard.addAction("DOWN", EComAction.HarPull);
                 keyboard.addAction("W", EComAction.HarMoveUp );
                 keyboard.addAction("A", EComAction.HarMoveLeft);
@@ -76,18 +76,17 @@ public class RobotController implements GUIListener {
             }
         });
 
-
-        while(!Close){
-
-        }
-        //InitMotors();
-
+        init();
+        //scanner.scanFromFile("PrenJava/res/vid2.m4v");
+        //filterPicker.setFile("PrenJava/Res/vid2.m4v");
+        //filterPicker.setColorFilter(filterSet.getColorFilter(Color.RED));
+        while(!Close) {}
+        System.exit(0);
     }
 
     @Override
     public void startFilterPicker() {
-        filterPicker = new FilterPicker();
-        filterPicker.setColorFilter(filterSet.getRedFilter());
+
         Thread t = new Thread(filterPicker);
         t.start();
     }
@@ -104,6 +103,7 @@ public class RobotController implements GUIListener {
         private Mat output;
         private boolean bRun = false;
         private Size size = new Size(400, 300);
+        private String file = null;
 
         public FilterPicker() {}
 
@@ -119,8 +119,20 @@ public class RobotController implements GUIListener {
             bRun = false;
         }
 
+        public void setFile(String file) {
+            this.file = file;
+        }
+
         @Override
         public void run() {
+            if (file == null) {
+                live();
+            } else {
+                loopFile(file);
+            }
+        }
+
+        public void live() {
             bRun = true;
             try {
                 capture = new VideoCapture(0);
@@ -145,6 +157,42 @@ public class RobotController implements GUIListener {
                                 }
                             });
                         }
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println(e.getLocalizedMessage());
+            }
+        }
+
+        public void loopFile(String file) {
+            bRun = true;
+            try {
+                capture = new VideoCapture(file);
+                input = new Mat();
+                output = new Mat();
+
+                while(bRun) {
+                    capture.read(input);
+                    if (!input.empty()) {
+                        Imgproc.cvtColor(input, output, Imgproc.COLOR_BGR2HSV);
+                        output = colorFilter.filter(output);
+                        Imgproc.resize(input, input, size);
+                        Imgproc.resize(output, output, size);
+                        if (SwingUtilities.isEventDispatchThread()) {
+                            main.setOriginalImage(input);
+                            main.setProcessedImage(output);
+                        } else {
+                            SwingUtilities.invokeAndWait( new Runnable() {
+                                @Override
+                                public void run() {
+                                    main.setOriginalImage(input);
+                                    main.setProcessedImage(output);
+                                }
+                            });
+                        }
+                        Thread.sleep(50);
+                    } else {
+                        capture.open(file);
                     }
                 }
             } catch (Exception e) {
@@ -254,10 +302,20 @@ public class RobotController implements GUIListener {
     }
 
     @Override
-    public void setFilter(ColorFilter filter, String profile, String color) {
+    public void setFilter(Color color) {
         if (filterPicker != null) {
-            filterPicker.setColorFilter(filter);
+            filterPicker.setColorFilter(customFilterSet.getColorFilter(color));
         }
+        main.setColorFilter(customFilterSet.getColorFilter(color));
+    }
+
+    @Override
+    public void updateFilter(Color color, ColorFilter colorFilter) {
+        if (filterPicker != null) {
+            filterPicker.setColorFilter(customFilterSet.getColorFilter(color));
+        }
+        main.setColorFilter(colorFilter);
+        customFilterSet.setColorFilter(colorFilter, color);
     }
 
     @Override
@@ -276,6 +334,27 @@ public class RobotController implements GUIListener {
 
     @Override
     public void save() {
+        propertyManager.saveFilterSet(customFilterSet);
+        filterSet = propertyManager.getFilterSet();
+    }
 
+    public void start() {
+        // 1. init Parameter
+        init();
+        // 1. Tower in Position
+        tower.MoveRight();
+        // 2. Scanner
+        scanner.run();
+        // 3. Aimbot
+        aimbot.setCrosshair(crosshair);
+        aimbot.run();
+        // 4. Funnel
+        funnel.Open();
+        // 5. Tower back to Start
+        tower.MoveLeft();
+    }
+
+    private void init() {
+        scanner = new Scanner(filterSet, capture, harpune);
     }
 }
