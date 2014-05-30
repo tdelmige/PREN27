@@ -123,11 +123,11 @@ public class KeyboardAnimation implements ActionListener
             switch (action){
 
                 case TowMoveLeft:
-                    this.tower.MoveLeft();
+                    this.tower.MoveLeft((short)100);
                     break;
 
                 case TowMoveRight:
-                    this.tower.MoveRight();
+                    this.tower.MoveRight((short)0);
                     break;
 
                 case HarMoveAroundLeft:
@@ -179,9 +179,9 @@ public class KeyboardAnimation implements ActionListener
                     break;
 
                 case STOP:
-                    RobotController.Stop();
+                    this.harpune.stopHorizontalMove(true);
+                    //this.harpune.stopPullLoose(true);
                     break;
-
             }
         }
 

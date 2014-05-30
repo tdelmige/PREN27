@@ -114,8 +114,8 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
                     lastResponse = buffer;
                     respStack.add(buffer);
                     this.lock = false;
-                    
-                    IMessage msg = new MessageImpl(null, null, null, null, null, comAdr);
+
+                    IMessage msg = new MessageImpl(null, buffer[0]!=0, null, null, null, comAdr);
                     super.notifyObservers(msg);
                 }
                 catch (SerialPortException ex) {

@@ -49,15 +49,15 @@ public class RobotController implements GUIListener {
         harpune = new Harpune(command);
         funnel = new Funnel(command);
         filterPicker = new FilterPicker();
-        propertyManager = new PropertyManager();
-        filterSet = propertyManager.getFilterSet();
-        customFilterSet = propertyManager.getFilterSet();
+        //propertyManager = new PropertyManager();
+        //filterSet = propertyManager.getFilterSet();
+        //customFilterSet = propertyManager.getFilterSet();
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 main = new Gui("test", instance);
-                main.init();
+                //main.init();
                 keyboard = new KeyboardAnimation(main.getPanel(), 400, tower, harpune, funnel);
                 keyboard.addAction("LEFT", EComAction.TowMoveLeft);
                 keyboard.addAction("RIGHT", EComAction.TowMoveRight );
@@ -76,7 +76,7 @@ public class RobotController implements GUIListener {
             }
         });
 
-        init();
+        //init();
         //scanner.scanFromFile("PrenJava/res/vid2.m4v");
         //filterPicker.setFile("PrenJava/Res/vid2.m4v");
         //filterPicker.setColorFilter(filterSet.getColorFilter(Color.RED));
@@ -274,13 +274,11 @@ public class RobotController implements GUIListener {
         }
     }
 
-    public static void Stop()
+    public void Stop()
     {
         System.out.println(new Date().toString() + ": RobotController.Stop");
-
-        for(short i=0; i<5; i++){
-            Command.StopMove(i, true);
-        }
+        harpune.stopHorizontalMove(true);
+        harpune.stopPullLoose(true);
     }
 
     public static void Exit(){
