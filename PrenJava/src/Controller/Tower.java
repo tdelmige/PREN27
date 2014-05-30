@@ -11,10 +11,10 @@ public class Tower implements IObserver<IMessage> {
     private short comAdr = 0;
 
     private final short MOTOR = 3;
-    private final short LEFT = 2;
-    private final short RIGHT = 1;
+    private final short LEFT = 1;
+    private final short RIGHT = 0;
 
-    private short speed = 50;
+    private short speed = 10;
     private short acc = 0;
     private short dec = 0;
 	

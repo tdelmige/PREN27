@@ -8,13 +8,35 @@ import java.util.Timer;
 
 public class Harpune implements IObserver<IMessage> {
 
-    public final short LEFT = 2;
-    public final short RIGHT = 1;
-    public final short UP = 2;
+    // Directions
+    public final short RIGHT = 0;
+    public final short LEFT = 1;
+    public final short UP = 0;
     public final short DOWN = 1;
+
+    // Motors
     public final short HORIZONTAL = 0;
     public final short VERTICAL = 1;
-    public final short PULL = 2;
+    public final short JIG = 2; // Spannvorrichtung
+
+    // Positions
+    private final int JIG_MIN = 0;
+    private final int JIG_MAX = 842891; // 0C DC 8B - 842 891
+
+    // Speed
+    private short speedPull = 50;
+    private short speedLoose = 20;
+
+    // Acceleration & Deceleration
+    private short accPull = 20;
+    private short decPull = 20;
+    private short accLoose = 75;
+    private short decLoose = 75;
+
+    // Default
+    private short speed = 20;
+    private short acc = 20;
+    private short dec = 20;
 
 	private short delay = 1000;
 	private Command com = null;
@@ -24,6 +46,7 @@ public class Harpune implements IObserver<IMessage> {
     private short dec = 0;
     private short posPull = 40;
     private short posLoose = 0;
+    private short speedHarpune = 5 ;
 
 	public Harpune(Command com) {
 		this.com = com;
@@ -51,48 +74,52 @@ public class Harpune implements IObserver<IMessage> {
     // ebenfalls close bei Funnel
 	public void Pull() {
         System.out.println(new Date().toString() + ": Harpune.Pull");
-        com.Send(Command.MoveTo(PULL, UP, posPull, speed, acc, dec), comAdr);
+        com.Send(Command.MoveTo(JIG, UP, JIG_MIN, speedPull, accPull, decPull), comAdr);
     }
 
     public void Loose() {
         System.out.println(new Date().toString() + ": Harpune.Loose");
-        com.Send(Command.MoveTo(PULL, DOWN, posLoose, speed, acc, dec), comAdr);
+        com.Send(Command.MoveTo(JIG, DOWN, JIG_MAX, speedLoose, accLoose, decLoose), comAdr);
     }
 
     public void stopPullLoose(boolean hardStop) {
-        System.out.println(new Date().toString() + ": Harpune.stopPullLosse");
-        com.Send(Command.StopMove(PULL, hardStop), comAdr);
+        System.out.println(new Date().toString() + ": Harpune.stopPullLoose");
+        com.Send(Command.StopMove(JIG, hardStop), comAdr);
     }
 
     public void MoveLeft(){
         System.out.println(new Date().toString() + ": Harpune.MoveLeft");
-        com.Send(Command.Move(HORIZONTAL, LEFT, speed, acc, dec), comAdr);
+        com.Send(Command.Move(HORIZONTAL, LEFT, speedHarpune, acc, dec), comAdr);
     }
 
-    public void MoveLeft(short pos){
-        System.out.println(new Date().toString() + ": Harpune.MoveLeft, steps:" +pos);
-        com.Send(Command.MoveTo(HORIZONTAL, LEFT, pos, speed, acc, dec), comAdr);
+    public void MoveLeft(int pos){
+        System.out.println(new Date().toString() + ": Harpune.MoveLeft to:" +pos);
+        com.Send(Command.MoveTo(HORIZONTAL, LEFT, pos, speedHarpune, acc, dec));
     }
 
     public void MoveRight(){
         System.out.println(new Date().toString() + ": Harpune.MoveRight");
         com.Send(Command.Move(HORIZONTAL, RIGHT, speed, acc, dec), comAdr);
+        com.Send(Command.Move(HORIZONTAL, RIGHT, speedHarpune, acc, dec));
     }
 
     public void MoveRight(short pos){
         System.out.println(new Date().toString() + ": Harpune.MoveRight, steps:" +pos);
         com.Send(Command.MoveTo(HORIZONTAL, RIGHT, pos, speed, acc, dec), comAdr);
+    public void MoveRight(int pos){
+        System.out.println(new Date().toString() + ": Harpune.MoveRight to:" +pos);
+        com.Send(Command.MoveTo(HORIZONTAL, RIGHT, pos, speedHarpune, acc, dec), comAdr);
     }
 
     public void MoveAroundLeft(){
         System.out.println(new Date().toString() + ": Harpune.MoveAroundLeft");
-        com.Send(Command.Move(HORIZONTAL, LEFT, speed, acc, dec), comAdr);
+        com.Send(Command.Move(HORIZONTAL, LEFT, speedHarpune, acc, dec), comAdr);
 
     }
 
     public void MoveAroundRight(){
         System.out.println(new Date().toString() + ": Harpune.MoveAroundRight");
-        com.Send(Command.Move(HORIZONTAL, RIGHT, speed, acc, dec), comAdr);
+        com.Send(Command.Move(HORIZONTAL, RIGHT, speedHarpune, acc, dec), comAdr);
     }
 
     public void stopHorizontalMove(boolean hardStop) {
@@ -102,23 +129,22 @@ public class Harpune implements IObserver<IMessage> {
 
     public void MoveUp(){
         System.out.println(new Date().toString() + ": Harpune.MoveUp");
-        com.Send(Command.Move(VERTICAL, UP, speed, acc, dec), comAdr);
+        com.Send(Command.Move(VERTICAL, UP, speedHarpune, acc, dec), comAdr);
     }
 
-    public void MoveUp(short pos){
+    public void MoveUp(int pos){
         System.out.println(new Date().toString() + ": Harpune.MoveUp, steps:" +pos);
-        com.Send(Command.MoveTo(VERTICAL, UP, pos, speed, acc, dec), comAdr);
+        com.Send(Command.MoveTo(VERTICAL, UP, pos, speedHarpune, acc, dec), comAdr);
     }
 
     public void MoveDown(){
         System.out.println(new Date().toString() + ": Harpune.MoveDown");
-        com.Send(Command.Move(VERTICAL, DOWN, speed, acc, dec), comAdr);
-
+        com.Send(Command.Move(VERTICAL, DOWN, speedHarpune, acc, dec), comAdr);
     }
 
-    public void MoveDown(short pos){
+    public void MoveDown(int pos){
         System.out.println(new Date().toString() + ": Harpune.MoveDown, steps:" +pos);
-        com.Send(Command.MoveTo(VERTICAL, UP, pos, speed, acc, dec), comAdr);
+        com.Send(Command.MoveTo(VERTICAL, UP, pos, speedHarpune, acc, dec), comAdr);
     }
 
     public void StopVerticalMove(boolean hardStop) {

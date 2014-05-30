@@ -3,6 +3,8 @@ package Controller;
 import Common.IMessage;
 import Common.IObserver;
 
+import java.nio.ByteBuffer;
+
 public class Command implements IObserver<IMessage>{
 	
 	private static final byte InitMove = 0x00;
@@ -22,7 +24,7 @@ public class Command implements IObserver<IMessage>{
 	private static final byte MoveToWayPoint = 0x0D;
     private static final byte DCMove = 0x0E;
 	
-	private static final short  byteLength = 10;
+	private static final short  byteLength = 9;
 	private static ComPort com = null;
 	private static short adr =0;
 	
@@ -32,7 +34,7 @@ public class Command implements IObserver<IMessage>{
 	
 	static 
 	{		
-		ComPort.PortNr = "COM4";
+		ComPort.PortNr = "COM5";
 		com = new ComPort();
 		
 	}
@@ -47,13 +49,12 @@ public class Command implements IObserver<IMessage>{
 	
 	public void Send(byte[] cmd, short comAdr)
 	{
+
 		//�ber event l�sen = answer auswerten
 		while(!com.Write(cmd, comAdr))
 		{
 			//String exception = com.LastResponse();
 		}
-		
-		
 	}
 	
 //	private static String Answer(){
@@ -72,19 +73,25 @@ public class Command implements IObserver<IMessage>{
 		return cmd;
 	}
 	
-	public static byte[] MoveTo(short motor, short dir, short pos, short speed, short acc, short dec){
-		
+	public static byte[] MoveTo(short motor, short dir, int pos, short speed, short acc, short dec){
+
+        byte[] bytes = ByteBuffer.allocate(4).putInt(pos).array();
+
 		byte[] cmd = new byte[byteLength];
 		cmd[0] = MoveTo;
 		cmd[1] = (byte) motor;
 		cmd[2] = (byte) dir;
-		cmd[3] = (byte) pos;
-		cmd[4] = 0x00;
-		cmd[5] = 0x00;
+		cmd[3] = bytes[1];
+		cmd[4] = bytes[2];
+		cmd[5] = bytes[3];
 		cmd[6] = (byte) speed;
 		cmd[7] = (byte) acc;
 		cmd[8] = (byte) dec;
-		
+
+        for (byte b : cmd) {
+            System.out.format("%x ", b);
+        }
+
 		return cmd;
 	}
 	
@@ -119,7 +126,10 @@ public class Command implements IObserver<IMessage>{
 		cmd[3] = (byte) speed;
 		cmd[4] = (byte) acc;
 		cmd[5] = (byte) dec;
-		
+		for (byte b : cmd) {
+            System.out.print(b + " ");
+        }
+        System.out.println();
 		return cmd;
 	}
 	 
@@ -129,6 +139,11 @@ public class Command implements IObserver<IMessage>{
 		cmd[0] = StopMove;
 		cmd[1] = (byte) motor;
 		cmd[2] = (byte) (hardstop ? 1 : 0);
+
+        for (byte b : cmd) {
+            System.out.print(b + " ");
+        }
+        System.out.println();
 		
 		return cmd;
 	}
@@ -225,16 +240,19 @@ public class Command implements IObserver<IMessage>{
 
 	@Override
 	public void update(IMessage arg) {
-		if(arg.getException() == null && arg.getComAdr() == comAdr)
-		{
-			if(arg.getAcknowledge()){}
-			
-			//Fehler 
-			else{
-				String msg = arg.getMessage();
-				System.out.println(msg);
-			}
-		}
+        if (arg != null) {
+            if (arg.getException() == null && arg.getComAdr() == comAdr) {
+                if (arg.getAcknowledge()) {
+
+                }
+
+                //Fehler
+                else {
+                    String msg = arg.getMessage();
+                    System.out.println(msg);
+                }
+            }
+        }
 	}
 
 }
