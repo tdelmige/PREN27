@@ -4,10 +4,13 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import ImageProcessing.ColorFilter;
 import ImageProcessing.Crosshair;
@@ -40,14 +43,13 @@ public class container {
     private JSlider slidHue2Upper;
     private JTextField txtHue2Low;
     private JTextField txtHue2Upper;
-    private JComboBox cboProfile;
     private JComboBox cboColor;
     private JButton saveButton;
     private JSlider slidValLow;
-    private JButton redOnButton;
-    private JButton blueOnButton;
-    private JButton yellowOnButton;
-    private JButton greenOnButton;
+    private JButton redButton;
+    private JButton blueButton;
+    private JButton yellowButton;
+    private JButton greenButton;
     private JButton startButton;
     private JTextField txtPosition;
     private JButton setButton1;
@@ -60,10 +62,11 @@ public class container {
     private JPanel origImage;
     private JPanel statusBar;
     private JButton stopButton;
-    private JButton enableTargetDetectionButton;
+    private JButton btnScanner;
     private JLabel imageAiming;
     private JButton startButton1;
     private JButton stopButton1;
+    private JButton btnScannerStop;
     private ImageIcon originalIcon;
     private ImageIcon processedIcon;
     private ImageIcon image;
@@ -72,53 +75,96 @@ public class container {
     private ColorFilter colorFilter;
     private CubeFinder cubeFinder;
     private Crosshair crosshair;
+    private Common.Color selectedColor;
 
     public container() {
         createUIComponents();
-        createListener();
+    }
 
+    public void init() {
+        createListener();
+        cboColor.setSelectedIndex(Common.Color.RED.getValue());
+        updateSliders();
+        updateTextFields();
     }
 
     private void createListener() {
+        cboColor.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selectedColor = Common.Color.values()[cboColor.getSelectedIndex()];
+                if (selectedColor == Common.Color.RED) {
+                    slidHue2Upper.setEnabled(true);
+                    slidHue2Low.setEnabled(true);
+                    txtHue2Low.setEnabled(true);
+                    txtHue2Upper.setEnabled(true);
+                } else {
+                    slidHue2Upper.setValue(0);
+                    slidHue2Low.setValue(0);
+                    txtHue2Low.setText("0");
+                    txtHue2Upper.setText("0");
+                    slidHue2Upper.setEnabled(false);
+                    slidHue2Low.setEnabled(false);
+                    txtHue2Low.setEnabled(false);
+                    txtHue2Upper.setEnabled(false);
+                }
+                Common.Color c = Common.Color.values()[selectedColor.getValue()];
+                parent.fireSetFilter(c);
+            }
+        });
         slidHueLow.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                parent.fireSetFilter(createColorFilter());
+                parent.fireUpdateFilter(selectedColor, createColorFilter());
                 updateTextFields();
             }
         });
         slidHueUpper.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                parent.fireSetFilter(createColorFilter());
+                parent.fireUpdateFilter(selectedColor, createColorFilter());
+                updateTextFields();
+            }
+        });
+        slidHue2Low.addChangeListener( new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                parent.fireUpdateFilter(selectedColor, createColorFilter());
+                updateTextFields();
+            }
+        });
+        slidHue2Upper.addChangeListener( new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                parent.fireUpdateFilter(selectedColor, createColorFilter());
                 updateTextFields();
             }
         });
         slidSatLow.addChangeListener( new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                parent.fireSetFilter(createColorFilter());
+                parent.fireUpdateFilter(selectedColor, createColorFilter());
                 updateTextFields();
             }
         });
         slidSatUpper.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                parent.fireSetFilter(createColorFilter());
+                parent.fireUpdateFilter(selectedColor, createColorFilter());
                 updateTextFields();
             }
         });
         slidValLow.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                parent.fireSetFilter(createColorFilter());
+                parent.fireUpdateFilter(selectedColor, createColorFilter());
                 updateTextFields();
             }
         });
         slidValUpper.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                parent.fireSetFilter(createColorFilter());
+                parent.fireUpdateFilter(selectedColor, createColorFilter());
                 updateTextFields();
             }
         });
@@ -177,6 +223,22 @@ public class container {
         originalImage.setIcon(originalIcon);
         processedImage.setIcon(processedIcon);
         imageAiming.setIcon(image);
+        for (Common.Color c : Common.Color.values()) {
+            cboColor.addItem(c.toString());
+        }
+    }
+
+    private void updateSliders() {
+        slidHueLow.setValue((int)colorFilter.getHueLow());
+        slidHueUpper.setValue((int)colorFilter.getHueUp());
+        slidSatLow.setValue((int)colorFilter.getSatLow());
+        slidSatUpper.setValue((int)colorFilter.getSatUp());
+        slidValLow.setValue((int)colorFilter.getValLow());
+        slidValUpper.setValue((int)colorFilter.getValUp());
+        if (Common.Color.RED == selectedColor) {
+            slidHue2Low.setValue((int)colorFilter.getHueLow2());
+            slidHue2Upper.setValue((int)colorFilter.getHueUp2());
+        }
     }
 
     private ColorFilter createColorFilter() {
@@ -190,7 +252,16 @@ public class container {
         Scalar lScalar = new Scalar(dLHue, dLSat, dLVal);
         Scalar uScalar = new Scalar(dUHue, dUSat, dUVal);
 
-        colorFilter = new ColorFilter(lScalar, uScalar);
+        if (Common.Color.RED == selectedColor) {
+            double dLHue2 = slidHue2Low.getValue();
+            double dUHue2 = slidHue2Upper.getValue();
+            Scalar lScalar2 = new Scalar(dLHue2, dLSat, dLVal);
+            Scalar uScalar2 = new Scalar(dUHue2, dUSat, dUVal);
+            colorFilter = new ColorFilter(lScalar, uScalar, lScalar2, uScalar2);
+        } else {
+            colorFilter = new ColorFilter(lScalar, uScalar);
+        }
+
         return colorFilter;
     }
 
@@ -201,6 +272,10 @@ public class container {
         txtSatUpper.setText(Integer.toString(slidSatUpper.getValue()));
         txtValLow.setText(Integer.toString(slidValLow.getValue()));
         txtValUpper.setText(Integer.toString(slidValUpper.getValue()));
+        if (selectedColor == Common.Color.RED) {
+            txtHue2Low.setText(Integer.toString(slidHue2Low.getValue()));
+            txtHue2Upper.setText(Integer.toString(slidHue2Upper.getValue()));
+        }
     }
 
     public void showOriginalImage(Mat img){
@@ -216,6 +291,12 @@ public class container {
     public void showImage(Mat m) {
         image.setImage(toBufferedImage(m));
         imageAiming.updateUI();
+    }
+
+    public void setColorFilter(ColorFilter colorFilter) {
+        this.colorFilter = colorFilter;
+        this.updateSliders();
+        this.updateTextFields();
     }
 
     public Image toBufferedImage(Mat m){
@@ -356,8 +437,8 @@ public class container {
         final JLabel label5 = new JLabel();
         label5.setText("Profile:");
         panel4.add(label5, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        cboProfile = new JComboBox();
-        panel4.add(cboProfile, new com.intellij.uiDesigner.core.GridConstraints(0, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(100, -1), null, 0, false));
+        //cboProfile = new JComboBox();
+        //panel4.add(cboProfile, new com.intellij.uiDesigner.core.GridConstraints(0, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(100, -1), null, 0, false));
         final com.intellij.uiDesigner.core.Spacer spacer4 = new com.intellij.uiDesigner.core.Spacer();
         panel2.add(spacer4, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(-1, 15), null, 0, false));
         final JPanel panel5 = new JPanel();
@@ -373,18 +454,18 @@ public class container {
         panel6.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 4, new Insets(5, 5, 5, 5), -1, -1));
         panel1.add(panel6, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         panel6.setBorder(BorderFactory.createTitledBorder("Apply Filter"));
-        redOnButton = new JButton();
-        redOnButton.setText("Red On");
-        panel6.add(redOnButton, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(80, -1), null, 0, false));
-        blueOnButton = new JButton();
-        blueOnButton.setText("Blue On");
-        panel6.add(blueOnButton, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(80, -1), null, 0, false));
-        yellowOnButton = new JButton();
-        yellowOnButton.setText("Yellow On");
-        panel6.add(yellowOnButton, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(80, -1), null, 0, false));
-        greenOnButton = new JButton();
-        greenOnButton.setText("Green On");
-        panel6.add(greenOnButton, new com.intellij.uiDesigner.core.GridConstraints(0, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(80, -1), null, 0, false));
+        redButton = new JButton();
+        redButton.setText("Red On");
+        panel6.add(redButton, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(80, -1), null, 0, false));
+        blueButton = new JButton();
+        blueButton.setText("Blue On");
+        panel6.add(blueButton, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(80, -1), null, 0, false));
+        yellowButton = new JButton();
+        yellowButton.setText("Yellow On");
+        panel6.add(yellowButton, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(80, -1), null, 0, false));
+        greenButton = new JButton();
+        greenButton.setText("Green On");
+        panel6.add(greenButton, new com.intellij.uiDesigner.core.GridConstraints(0, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(80, -1), null, 0, false));
         final com.intellij.uiDesigner.core.Spacer spacer6 = new com.intellij.uiDesigner.core.Spacer();
         panel1.add(spacer6, new com.intellij.uiDesigner.core.GridConstraints(3, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(-1, 15), null, 0, false));
         final JPanel panel7 = new JPanel();

@@ -8,6 +8,7 @@ import Core.RobotController;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import javax.swing.*;
@@ -83,10 +84,12 @@ public class KeyboardAnimation implements ActionListener
 	{
 		//  Keep track of which keys are pressed
 
-		if (action == null)
-			pressedKeys.remove( key );
-		else
-			pressedKeys.put(key, action);
+		if (action == null) {
+            pressedKeys.remove(key);
+        }
+		else {
+            pressedKeys.put(key, action);
+        }
 
 		//  Start the Timer when the first key is pressed
 
@@ -100,6 +103,7 @@ public class KeyboardAnimation implements ActionListener
    		if (pressedKeys.size() == 0)
    		{
    			timer.stop();
+
    		}
 	}
 
@@ -149,12 +153,17 @@ public class KeyboardAnimation implements ActionListener
                 case HarMoveRight:
                     this.harpune.MoveRight();
                     break;
+
                 case HarFire:
                     this.harpune.Fire();
                     break;
 
                 case HarPull:
                     this.harpune.Pull();
+                    break;
+
+                case HarLoose:
+                    this.harpune.Loose();
                     break;
 
                 case FunOpen:

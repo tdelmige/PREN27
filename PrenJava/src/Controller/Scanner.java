@@ -3,6 +3,7 @@ package Controller;
 import java.util.ArrayList;
 import java.util.Map;
 
+import Common.Color;
 import ImageProcessing.*;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
@@ -15,12 +16,7 @@ import java.util.concurrent.Executors;
 public class Scanner {
 
     private boolean bScanning = false;
-
-    private int cubeCount;
-    private Map<Integer, Cube> greenCubes;
-    private Map<Integer, Cube> redCubes;
-    private Map<Integer, Cube> yellowCubes;
-    private Map<Integer, Cube> blueCubes;
+    private int scanTime = 10000;
 
     private FilterSet filterSet;
     private TargetZone targetZone;
@@ -29,6 +25,7 @@ public class Scanner {
     private CubeCounter yellowCounter;
     private CubeCounter blueCounter;
 
+    private Harpune harpune;
     private VideoCapture capture;
     private Mat input, output;
     private ImShow imShow;
@@ -40,22 +37,43 @@ public class Scanner {
 
     private ExecutorService workerPool;
 
-    public Scanner(FilterSet filterSet, VideoCapture capture) {
+    public Scanner(FilterSet filterSet, VideoCapture capture, Harpune harpune) {
         this.capture = capture;
+        this.harpune = harpune;
         this.imShow = new ImShow("Test");
-        cubeCount = 0;
-        greenCounter = new CubeCounter(filterSet.getGreenFilter(), 400);
+        greenCounter = new CubeCounter(filterSet.getColorFilter(Color.GREEN), 400);
         greenCounter.setTargetZone(targetZone);
-        redCounter = new CubeCounter(filterSet.getGreenFilter(), 400);
+        redCounter = new CubeCounter(filterSet.getColorFilter(Color.RED), 400);
         redCounter.setTargetZone(targetZone);
-        blueCounter = new CubeCounter(filterSet.getGreenFilter(), 400);
+        blueCounter = new CubeCounter(filterSet.getColorFilter(Color.BLUE), 400);
         blueCounter.setTargetZone(targetZone);
-        yellowCounter = new CubeCounter(filterSet.getGreenFilter(), 400);
+        yellowCounter = new CubeCounter(filterSet.getColorFilter(Color.YELLOW), 400);
         yellowCounter.setTargetZone(targetZone);
+    }
+
+    public void run() {
+        bScanning = true;
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                scan();
+            }
+        });
+        t.start();
+        harpune.MoveLeft();
+        try {
+            Thread.sleep(scanTime);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        harpune.stopHorizontalMove(false);
+        System.out.println(getCounts());
+        bScanning = false;
     }
 
     public void scan() {
 
+        bScanning = true;
         input = new Mat();
         output = new Mat();
 
@@ -64,7 +82,9 @@ public class Scanner {
         worker3 = yellowCounter;
         worker4 = blueCounter;
 
-        while (true) {
+        System.out.println("Start Scanning...");
+        capture = new VideoCapture(0);
+        while (bScanning) {
             if (capture.isOpened()) {
                 capture.read(input);
                 if (!input.empty()) {
@@ -90,6 +110,8 @@ public class Scanner {
 
                     while (!workerPool.isTerminated()) {
                     }
+                    input = greenCounter.draw(input);
+                    imShow.showImage(input);
                     imgBlue.release();
                     imgGreen.release();
                     imgRed.release();
@@ -100,6 +122,7 @@ public class Scanner {
 
             }
         }
+        System.out.println("Stop Scanning.");
     }
 
     public CubeCounter getHighestCounter() {
@@ -127,18 +150,9 @@ public class Scanner {
         worker3 = yellowCounter;
         worker4 = blueCounter;
 
-        Scalar s1 = new Scalar(35, 0, 0);
-        Scalar s2 = new Scalar(60, 255, 255);
-        ColorFilter colorFilter1 = new ColorFilter(s1, s2);
-        ColorFilter colorFilter2 = new ColorFilter(s1, s2);
-        ColorFilter colorFilter3 = new ColorFilter(s1, s2);
-        ColorFilter colorFilter4 = new ColorFilter(s1, s2);
+        capture = new VideoCapture(file);
 
-        greenCounter.setFilter(colorFilter1);
-        redCounter.setFilter(colorFilter2);
-        yellowCounter.setFilter(colorFilter3);
-        blueCounter.setFilter(colorFilter4);
-
+        System.out.println("Start Scanning...");
         while (true) {
             if (capture.isOpened()) {
                 capture.read(input);
@@ -165,7 +179,8 @@ public class Scanner {
 
                     while (!workerPool.isTerminated()) {
                     }
-                    imShow.showImage(output);
+                    input = blueCounter.draw(input);
+                    imShow.showImage(input);
                     imgBlue.release();
                     imgGreen.release();
                     imgRed.release();
@@ -174,18 +189,16 @@ public class Scanner {
                     output.release();
                 }
                 else {
-                    capture.open("PrenJava/res/vid.mp4");
                     System.out.println(getCounts());
-
+                    capture.open(file);
                     redCounter.resetCount();
                     yellowCounter.resetCount();
                     blueCounter.resetCount();
                     greenCounter.resetCount();
-
                 }
             }
             try {
-                Thread.sleep(1);
+                Thread.sleep(20);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

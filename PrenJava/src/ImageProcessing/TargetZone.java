@@ -22,6 +22,7 @@ public class TargetZone {
     public TargetZone(Size imageSize, int width) {
         this.width = width;
         this.imageSize = imageSize;
+        setUpTargetZone();
     }
 
     public int getStart() {

@@ -1,43 +1,29 @@
 package ImageProcessing;
 
-
-import org.opencv.core.Scalar;
-
+import Common.Color;
 
 public class FilterSet {
-    private String profile;
-	private ColorFilter redFilter;
-	private ColorFilter yellowFilter;
-	private ColorFilter blueFilter;
-	private ColorFilter greenFilter;
+    private ColorFilter[] colorFilters;
 	
-	public FilterSet() {}
+	public FilterSet() {
+        int maxColors = Color.values().length;
+        colorFilters = new ColorFilter[maxColors];
+    }
 
-    public String getProfile() { return profile; }
-    public void setProfile(String profile) { this.profile = profile; }
-	public ColorFilter getRedFilter() {
-		return redFilter;
-	}
-	public void setRedFilter(ColorFilter redFilter) {
-		this.redFilter = redFilter;
-	}
-	public ColorFilter getYellowFilter() {
-		return yellowFilter;
-	}
-	public void setYellowFilter(ColorFilter yellowFilter) {
-		this.yellowFilter = yellowFilter;
-	}
-	public ColorFilter getBlueFilter() {
-		return blueFilter;
-	}
-	public void setBlueFilter(ColorFilter blueFilter) {
-		this.blueFilter = blueFilter;
-	}
-	public ColorFilter getGreenFilter() {
-		return greenFilter;
-	}
-	public void setGreenFilter(ColorFilter greenFilter) {
-		this.greenFilter = greenFilter;
-	}
+    public void setColorFilter(ColorFilter filter, Color color) {
+        colorFilters[color.getValue()] = filter;
+    }
+
+    public ColorFilter getColorFilter(Color color) {
+        return colorFilters[color.getValue()];
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (ColorFilter c : colorFilters) {
+            sb.append(c + "\n");
+        }
+        return sb.toString();
+    }
 
 }

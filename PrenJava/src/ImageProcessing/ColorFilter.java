@@ -13,11 +13,6 @@ import org.opencv.core.Scalar;
  * @author raffaelsteinmann
  */
 public class ColorFilter {
-
-    public static final String C_RED = "Rot";
-    public static final String C_YELLOW = "Gelb";
-    public static final String C_GREEN = "Gruen";
-    public static final String C_BLUE = "Blau";
     
     private Mat ProcessedImage = new Mat();
 
@@ -92,6 +87,38 @@ public class ColorFilter {
 
     public Scalar getUpper2() {
         return Upper2;
+    }
+
+    public double getHueLow() {
+        return Lower.val[0];
+    }
+
+    public double getHueUp() {
+        return Upper.val[0];
+    }
+
+    public double getHueLow2() {
+        return Lower2.val[0];
+    }
+
+    public double getHueUp2() {
+        return Upper2.val[0];
+    }
+
+    public double getSatLow() {
+        return Lower.val[1];
+    }
+
+    public double getSatUp() {
+        return Upper.val[1];
+    }
+
+    public double getValLow() {
+        return Lower.val[2];
+    }
+
+    public double getValUp() {
+        return Upper.val[2];
     }
 
     public String toString() {

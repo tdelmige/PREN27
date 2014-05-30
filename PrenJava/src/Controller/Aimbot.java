@@ -4,6 +4,7 @@ import Common.IMessage;
 import Common.IObserver;
 import ImageProcessing.*;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
@@ -23,11 +24,9 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
 
 
     public Aimbot(VideoCapture capture, CubeCounter counter, Harpune harpune){
-
         this.capture = capture;
         this.counter = counter;
         targetzone = new TargetZone(new Size(), 600);
-
         this.harpune = harpune;
         Command.getComPortInst().addObserver(this);
 
@@ -106,6 +105,26 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
         }
 
         return cube;
+    }
+
+    private void moveToCube(Point dist) {
+        short x = transposeToSteps(dist.x);
+        short y = transposeToSteps(dist.y);
+        if (dist.x > 0) {
+            harpune.MoveLeft(x);
+        } else if (dist.x == 0) {
+            dist.x = dist.x * -1;
+            harpune.MoveRight(x);
+        }
+        if (dist.y > 0) {
+            harpune.MoveUp(y);
+        } else if (dist.y < 0) {
+            harpune.MoveDown(y);
+        }
+    }
+
+    private short transposeToSteps(double pixel) {
+        return (short)(pixel * 1);
     }
 
     private boolean moveToCube(Cube cube, Mat frame){
