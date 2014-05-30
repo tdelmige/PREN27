@@ -8,9 +8,7 @@ import java.util.Stack;
 
 import javax.swing.Timer;
 
-import Common.IMessage;
-import Common.MessageImpl;
-import Common.Observable;
+import Common.*;
 import jssc.*;
 
 public class ComPort extends Observable<IMessage> implements SerialPortEventListener {

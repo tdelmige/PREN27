@@ -33,11 +33,6 @@ public class Harpune implements IObserver<IMessage> {
     private short accLoose = 75;
     private short decLoose = 75;
 
-    // Default
-    private short speed = 20;
-    private short acc = 20;
-    private short dec = 20;
-
 	private short delay = 1000;
 	private Command com = null;
     private short comAdr = 0;
@@ -94,18 +89,14 @@ public class Harpune implements IObserver<IMessage> {
 
     public void MoveLeft(int pos){
         System.out.println(new Date().toString() + ": Harpune.MoveLeft to:" +pos);
-        com.Send(Command.MoveTo(HORIZONTAL, LEFT, pos, speedHarpune, acc, dec));
+        com.Send(Command.MoveTo(HORIZONTAL, LEFT, pos, speedHarpune, acc, dec), comAdr);
     }
 
     public void MoveRight(){
         System.out.println(new Date().toString() + ": Harpune.MoveRight");
-        com.Send(Command.Move(HORIZONTAL, RIGHT, speed, acc, dec), comAdr);
-        com.Send(Command.Move(HORIZONTAL, RIGHT, speedHarpune, acc, dec));
+        com.Send(Command.Move(HORIZONTAL, RIGHT, speedHarpune, acc, dec), comAdr);
     }
 
-    public void MoveRight(short pos){
-        System.out.println(new Date().toString() + ": Harpune.MoveRight, steps:" +pos);
-        com.Send(Command.MoveTo(HORIZONTAL, RIGHT, pos, speed, acc, dec), comAdr);
     public void MoveRight(int pos){
         System.out.println(new Date().toString() + ": Harpune.MoveRight to:" +pos);
         com.Send(Command.MoveTo(HORIZONTAL, RIGHT, pos, speedHarpune, acc, dec), comAdr);

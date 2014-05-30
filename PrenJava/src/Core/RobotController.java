@@ -33,6 +33,7 @@ public class RobotController implements GUIListener {
     private Aimbot aimbot;
 
     private static Command command;
+    private static short comAdr;
     private Tower tower;
     private Harpune harpune;
     private Funnel funnel;
@@ -42,9 +43,13 @@ public class RobotController implements GUIListener {
     public static boolean Close = false;
     public static short CamPort = 0;
 
+    static {
+        RobotController.comAdr = Command.getComAdr();
+    }
     public RobotController() {
         instance = this;
         command = new Command();
+
         tower = new Tower(command);
         harpune = new Harpune(command);
         funnel = new Funnel(command);
@@ -57,7 +62,7 @@ public class RobotController implements GUIListener {
             @Override
             public void run() {
                 main = new Gui("test", instance);
-                //main.init();
+                main.init();
                 keyboard = new KeyboardAnimation(main.getPanel(), 400, tower, harpune, funnel);
                 keyboard.addAction("LEFT", EComAction.TowMoveLeft);
                 keyboard.addAction("RIGHT", EComAction.TowMoveRight );
@@ -279,7 +284,7 @@ public class RobotController implements GUIListener {
         System.out.println(new Date().toString() + ": RobotController.Stop");
 
         for(short i=0; i<5; i++){
-            command.Send(Command.StopMove(i, true));
+            command.Send(Command.StopMove(i, true),comAdr);
         }
     }
 
