@@ -32,7 +32,7 @@ public class RobotController implements GUIListener {
     private Scanner scanner;
     private Aimbot aimbot;
 
-    private Command command;
+    private static Command command;
     private Tower tower;
     private Harpune harpune;
     private Funnel funnel;
@@ -267,19 +267,19 @@ public class RobotController implements GUIListener {
         }
     }
 
-    public static void InitMotors(){
-
-        for(short i=0; i<5; i++){
-            Command.InitMove(i, (short) 1);
-        }
-    }
+//    public static void InitMotors(){
+//
+//        for(short i=0; i<5; i++){
+//            command.Send(Command.InitMove(i, (short) 1));
+//        }
+//    }
 
     public static void Stop()
     {
         System.out.println(new Date().toString() + ": RobotController.Stop");
 
         for(short i=0; i<5; i++){
-            Command.StopMove(i, true);
+            command.Send(Command.StopMove(i, true));
         }
     }
 
@@ -293,12 +293,6 @@ public class RobotController implements GUIListener {
         else{
 
         }
-    }
-
-    public void StartMoves(){
-
-        InitMotors();
-        tower.MoveRight();
     }
 
     @Override
@@ -357,4 +351,6 @@ public class RobotController implements GUIListener {
     private void init() {
         scanner = new Scanner(filterSet, capture, harpune);
     }
+
+
 }

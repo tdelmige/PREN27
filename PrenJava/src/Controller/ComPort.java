@@ -8,9 +8,7 @@ import java.util.Stack;
 
 import javax.swing.Timer;
 
-import Common.IMessage;
-import Common.MessageImpl;
-import Common.Observable;
+import Common.*;
 import jssc.*;
 
 public class ComPort extends Observable<IMessage> implements SerialPortEventListener {
@@ -114,8 +112,13 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
                     lastResponse = buffer;
                     respStack.add(buffer);
                     this.lock = false;
-                    
-                    IMessage msg = new MessageImpl(null, null, null, null, null, comAdr);
+
+                    byte ack = buffer[0];
+                    byte[] payload = Arrays.copyOfRange(buffer, 1, buffer.length-2);
+                    byte chk = buffer[buffer.length-1];
+                    IResponse res = new ResponseImpl(ack,payload,chk);
+                    IMessage msg = new MessageImpl(null, res , null, comAdr);
+
                     super.notifyObservers(msg);
                 }
                 catch (SerialPortException ex) {

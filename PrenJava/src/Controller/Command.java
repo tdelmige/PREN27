@@ -38,14 +38,14 @@ public class Command implements IObserver<IMessage>{
 	}
 	
 	public Command(){
-		comAdr = ++adr;
+		//comAdr = ++adr;
 		com.addObserver(this);
 	}
 
     public static ComPort getComPortInst() {return com;}
+	public static short getComAdr() {return ++adr;}
 	
-	
-	public void Send(byte[] cmd)
+	public void Send(byte[] cmd, short comAdr)
 	{
 		//�ber event l�sen = answer auswerten
 		while(!com.Write(cmd, comAdr))

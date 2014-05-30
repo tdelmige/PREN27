@@ -9,13 +9,16 @@ public class MessageImpl implements IMessage {
 	private Exception exception;
 	private Short comAdr;
 	
-	public MessageImpl(String mes, Boolean ack, Short che, IResponse res, Exception ex, Short adr){
+	public MessageImpl(String mes, IResponse res, Exception ex, Short adr){
 		this.message = mes;
-		this.acknowledge = ack;
-		this.checksum = che;
+
 		this.response = res;
 		this.exception = ex;
 		this.comAdr = adr;
+
+        this.acknowledge = res.getAck() !=0;
+        this.checksum = (short)res.getChecksum();
+
 	}
 	
 	@Override
