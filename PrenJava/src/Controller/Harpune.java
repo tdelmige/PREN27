@@ -13,8 +13,8 @@ public class Harpune implements IObserver<IMessage> {
     // Directions
     public final short RIGHT = 0;
     public final short LEFT = 1;
-    public final short UP = 0;
-    public final short DOWN = 1;
+    public final short UP = 1;
+    public final short DOWN = 0;
 
     // Motors
     public final short HORIZONTAL = 0;
@@ -26,8 +26,8 @@ public class Harpune implements IObserver<IMessage> {
     private final int JIG_MAX = 842891; // 0C DC 8B - 842 891
 
     // Speed
-    private short speedPull = 50;
-    private short speedLoose = 20;
+    private short speedPull = 10;
+    private short speedLoose = 50;
 
     // Acceleration & Deceleration
     private short accPull = 20;
@@ -40,6 +40,7 @@ public class Harpune implements IObserver<IMessage> {
     private short comAdr = 0;
     private String comFunc = "";
     private IMessage response;
+    private Boolean received = false;
 
     private short speed = 50;
     private short acc = 0;
@@ -47,6 +48,8 @@ public class Harpune implements IObserver<IMessage> {
     private short posPull = 40;
     private short posLoose = 0;
     private short speedHarpune = 5 ;
+
+    private int maxPos = 4194303;
 
 
 	public Harpune(Command com) {
@@ -62,7 +65,7 @@ public class Harpune implements IObserver<IMessage> {
 	{
         comFunc = "Harpune.Fire";
         System.out.println(new Date().toString() + ": " + comFunc);
-		Command.SetPin((short)1, true);
+		Command.SetPin((short) 1, true);
 		try 
 		{
 			//Bestromungsdauer
@@ -98,10 +101,15 @@ public class Harpune implements IObserver<IMessage> {
         com.Send(Command.Move(HORIZONTAL, LEFT, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
-    public void MoveLeft(int pos){
+    public void MoveLeft(int steps){
+        int pos = GetPosHorizontal();
+        pos += steps;
+        pos &= 0x3FFFFF;
+
         comFunc = "Harpune.MoveLeft to: " +pos;
         System.out.println(new Date().toString() + ": " + comFunc);
         com.Send(Command.MoveTo(HORIZONTAL, LEFT, pos, speedHarpune, acc, dec), comAdr, comFunc);
+        waitMove(HORIZONTAL);
     }
 
     public void MoveRight(){
@@ -110,10 +118,15 @@ public class Harpune implements IObserver<IMessage> {
         com.Send(Command.Move(HORIZONTAL, RIGHT, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
-    public void MoveRight(int pos){
-        comFunc = "Harpune.MoveRight to:" +pos;
+    public void MoveRight(int steps){
+        int pos = GetPosHorizontal();
+        pos -= steps;
+        pos &= 0x3FFFFF;
+
+        comFunc = "Harpune.MoveRight to: " +pos;
         System.out.println(new Date().toString() + ": " + comFunc);
         com.Send(Command.MoveTo(HORIZONTAL, RIGHT, pos, speedHarpune, acc, dec), comAdr, comFunc);
+        waitMove(HORIZONTAL);
     }
 
     public void MoveAroundLeft(){
@@ -141,10 +154,15 @@ public class Harpune implements IObserver<IMessage> {
         com.Send(Command.Move(VERTICAL, UP, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
-    public void MoveUp(int pos){
-        comFunc = "Harpune.MoveUp, steps:" +pos;
+    public void MoveUp(int steps){
+        int pos = GetPosVertical();
+        pos += steps;
+        pos &= 0x3FFFFF;
+
+        comFunc = "Harpune.MoveUp, to:" +pos;
         System.out.println(new Date().toString() + ": " + comFunc);
         com.Send(Command.MoveTo(VERTICAL, UP, pos, speedHarpune, acc, dec), comAdr, comFunc);
+        waitMove(VERTICAL);
     }
 
     public void MoveDown(){
@@ -153,10 +171,15 @@ public class Harpune implements IObserver<IMessage> {
         com.Send(Command.Move(VERTICAL, DOWN, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
-    public void MoveDown(int pos){
-        comFunc = "Harpune.MoveDown, steps:" +pos;
+    public void MoveDown(int steps){
+        int pos = GetPosVertical();
+        pos -= steps;
+        pos &= 0x3FFFFF;
+
+        comFunc = "Harpune.MoveDown, to:" +pos;
         System.out.println(new Date().toString() + ": " + comFunc);
-        com.Send(Command.MoveTo(VERTICAL, UP, pos, speedHarpune, acc, dec), comAdr, comFunc);
+        com.Send(Command.MoveTo(VERTICAL, DOWN, pos, speedHarpune, acc, dec), comAdr, comFunc);
+        waitMove(VERTICAL);
     }
 
     public void StopVerticalMove(boolean hardStop) {
@@ -170,9 +193,25 @@ public class Harpune implements IObserver<IMessage> {
         System.out.println(new Date().toString() + ": " + comFunc);
         com.Send(Command.GetAbsPos(HORIZONTAL), comAdr, comFunc);
 
-        while(response != null){
-            byte[] pos = response.getResponse().getPayload();
-            return ByteBuffer.wrap(pos).getInt();
+        while (received == false){
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        received = false;
+
+        while(response != null && response.getChecked() == false){
+
+            int payload = response.getPayload();
+            System.out.println(new Date().toString() + "Harpune.GetPosHorizontal Response: " + payload);
+            response.setChecked(true);
+
+            if (payload >= 0 || payload <= 4194303)
+                return payload;
+            else
+                return 0;
         }
 
         return 0;
@@ -183,12 +222,47 @@ public class Harpune implements IObserver<IMessage> {
         System.out.println(new Date().toString() + ": " + comFunc);
         com.Send(Command.GetAbsPos(VERTICAL), comAdr, comFunc);
 
-        while(response != null){
-            byte[] pos = response.getResponse().getPayload();
-            return ByteBuffer.wrap(pos).getInt();
+        while (received == false ){
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        received = false;
+
+        while(response != null && response.getChecked() == false){
+
+            int payload = response.getPayload();
+            System.out.println(new Date().toString() + "Harpune.GetPosVertical Response: " + payload);
+            response.setChecked(true);
+
+            if (payload >= 0 || payload <= 4194303)
+                return payload;
+            else
+                return 0;
         }
 
         return 0;
+    }
+
+    private void waitMove(short motor){
+        comFunc = "Harpune.WaitMoved";
+        com.Send(Command.WaitMoved(motor, (short)0), comAdr, comFunc);
+
+        while (received == false){
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        received = false;
+
+        while(response != null && response.getChecked() == false){
+            response.setChecked(true);
+            return;
+        }
     }
 
 
@@ -196,7 +270,14 @@ public class Harpune implements IObserver<IMessage> {
     public void update(IMessage arg) {
 
         if (arg.getComAdr() == comAdr){
+
+            if ("Harpune.GetPosVertical Harpune.GetPosHorizontal Harpune.WaitMoved".toLowerCase().contains(arg.getFunction().toLowerCase()))
+            {
+                received = true;
+            }
+
             response = arg;
+            response.setChecked(false);
         }
     }
 }

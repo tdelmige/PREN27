@@ -3,7 +3,7 @@ package Controller;
 import Common.IMessage;
 import Common.IObserver;
 
-import java.nio.ByteBuffer;
+import java.util.Date;
 
 public class Command implements IObserver<IMessage>{
 	
@@ -49,12 +49,15 @@ public class Command implements IObserver<IMessage>{
 	
 	public void Send(byte[] cmd, short comAdr, String func)
 	{
-
-		//�ber event l�sen = answer auswerten
 		while(!com.Write(cmd, comAdr, func))
 		{
-			//String exception = com.LastResponse();
-		}
+            try {
+                Thread.sleep(8);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
 	}
 	
 //	private static String Answer(){
@@ -75,15 +78,17 @@ public class Command implements IObserver<IMessage>{
 	
 	public static byte[] MoveTo(short motor, short dir, int pos, short speed, short acc, short dec){
 
-        byte[] bytes = ByteBuffer.allocate(4).putInt(pos).array();
+        byte[] bytes = intToByteArray3(pos);
+
+        System.out.println(new Date().toString() + "Command.MoveTo : Converted int: " + byteArrayToInt(bytes));
 
 		byte[] cmd = new byte[byteLength];
 		cmd[0] = MoveTo;
 		cmd[1] = (byte) motor;
 		cmd[2] = (byte) dir;
-		cmd[3] = bytes[1];
-		cmd[4] = bytes[2];
-		cmd[5] = bytes[3];
+		cmd[3] = bytes[0];
+		cmd[4] = bytes[1];
+		cmd[5] = bytes[2];
 		cmd[6] = (byte) speed;
 		cmd[7] = (byte) acc;
 		cmd[8] = (byte) dec;
@@ -254,5 +259,25 @@ public class Command implements IObserver<IMessage>{
             }
         }
 	}
+
+    public static byte[] intToByteArray3(int a)
+    {
+        byte[] ret = new byte[3];
+        ret[2] = (byte) (a & 0xFF);
+        ret[1] = (byte) ((a >> 8) & 0xFF);
+        ret[0] = (byte) ((a >> 16) & 0xFF);
+
+        return ret;
+    }
+
+    public static int byteArrayToInt(byte[] b)
+    {
+        int value = 0;
+        for (int i = 0; i < 3; i++) {
+            int shift = (2 - i) * 8;
+            value += (b[i] & 0x000000FF) << shift;
+        }
+        return value;
+    }
 
 }

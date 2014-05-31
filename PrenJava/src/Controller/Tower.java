@@ -64,9 +64,19 @@ public class Tower implements IObserver<IMessage> {
         System.out.println(new Date().toString() + ": " + comFunc);
         com.Send(Command.GetAbsPos(MOTOR), comAdr, comFunc);
 
-        while(response != null){
-            byte[] pos = response.getResponse().getPayload();
-            return ByteBuffer.wrap(pos).getInt();
+        while (response == null){
+            try {
+                Thread.sleep(4);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        while(response != null && response.getChecked() == false){
+            response.setChecked(true);
+            int payload = response.getPayload();
+            response = null;
+            return payload;
         }
 
         return 0;
@@ -78,6 +88,7 @@ public class Tower implements IObserver<IMessage> {
 
         if (arg.getComAdr() == comAdr){
             response = arg;
+            response.setChecked(false);
         }
     }
 }

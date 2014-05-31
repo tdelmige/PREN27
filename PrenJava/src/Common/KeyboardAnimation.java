@@ -139,19 +139,19 @@ public class KeyboardAnimation implements ActionListener
                     break;
 
                 case HarMoveUp:
-                    this.harpune.MoveUp();
+                    this.harpune.MoveUp(2000);
                     break;
 
                 case HarMoveDown:
-                    this.harpune.MoveDown();
+                    this.harpune.MoveDown(2000);
                     break;
 
                 case HarMoveLeft:
-                    this.harpune.MoveLeft();
+                    this.harpune.MoveLeft(2000);
                     break;
 
                 case HarMoveRight:
-                    this.harpune.MoveRight();
+                    this.harpune.MoveRight(2000);
                     break;
 
                 case HarFire:

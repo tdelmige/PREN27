@@ -1,24 +1,40 @@
 package Common;
 
+import java.nio.ByteBuffer;
+
 public class MessageImpl implements IMessage {
 
 	private String message;
 	private Boolean acknowledge;
 	private Short checksum;
+    private int payload;
 	private IResponse response;
 	private Exception exception;
 	private Short comAdr;
     private String function;
+    private Boolean checked = false;
 	
-	public MessageImpl(String mes, IResponse res, Exception ex, Short adr, String function){
+	public MessageImpl(String mes, IResponse res, Exception exc, Short adr, String function){
 		this.message = mes;
 
 		this.response = res;
-		this.exception = ex;
+		this.exception = exc;
 		this.comAdr = adr;
         this.function = function;
         this.acknowledge = res.getAck() !=0;
         this.checksum = (short)res.getChecksum();
+
+        try {
+
+            byte[] buffer = res.getPayload();
+            int payload =  byteArrayToInt(buffer);
+            this.payload = payload;
+        }
+        catch (Exception ex)
+        {
+            System.out.println(ex.getMessage());
+            ex.printStackTrace();
+        }
 
 	}
 	
@@ -38,7 +54,12 @@ public class MessageImpl implements IMessage {
 		return checksum;
 	}
 
-	@Override
+    @Override
+    public int getPayload() {
+        return payload;
+    }
+
+    @Override
 	public IResponse getResponse() {
 		return response;
 	}
@@ -56,6 +77,26 @@ public class MessageImpl implements IMessage {
     @Override
     public String getFunction() {
         return function;
+    }
+
+    @Override
+    public Boolean getChecked() {
+        return checked;
+    }
+
+    @Override
+    public void setChecked(Boolean checked) {
+        this.checked = checked;
+    }
+
+    public static int byteArrayToInt(byte[] b)
+    {
+        int value = 0;
+        for (int i = 0; i < 3; i++) {
+            int shift = (2 - i) * 8;
+            value += (b[i] & 0x000000FF) << shift;
+        }
+        return value;
     }
 
 }

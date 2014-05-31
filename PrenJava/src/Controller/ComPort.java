@@ -17,8 +17,6 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
 	private SerialPort port;
 	public static String PortNr;
 	public static final short LengthResponse = 4;
-	private byte[] lastResponse = null;
-	private Stack<byte[]> respStack = null;
 	private Timer timer;	
 	private static short timeout = 50;
 	private boolean lock = false;
@@ -28,7 +26,7 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
 	public ComPort(){
 		ports = SerialPortList.getPortNames();
 		Init(PortNr);
-		respStack = new Stack<byte[]>();
+
 		timer = new Timer(timeout, new ActionListener() {
 	
 			@Override
@@ -80,6 +78,7 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
 	        try {
 	        	comAdr = adr;
                 comFunc = func;
+                System.out.println(new Date().toString() + " ComPort.Write Send: " + Arrays.toString(msg));
 	        	port.writeBytes(msg);//Write data to port
 	        	this.lock = true;
 	        	timer.start();
@@ -109,18 +108,19 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
                 //Read data, if 10 bytes available 
                 try {
                     //byte[] buffer = port.readBytes(LengthResponse);
-                    byte[] buffer = port.readBytes();
-                    System.out.println(new Date().toString() + ": Received = " +  Arrays.toString(buffer));
-                    lastResponse = buffer;
-                    respStack.add(buffer);
+
+                    byte[] buffer = null;
+                    buffer = port.readBytes();
+                    System.out.println(new Date().toString() + " Comport : Received = " +  Arrays.toString(buffer));
                     this.lock = false;
 
                     byte ack = buffer[0];
-                    byte[] payload = Arrays.copyOfRange(buffer, 1, buffer.length-2);
-                    byte chk = buffer[buffer.length-1];
+                    byte[] payload = Arrays.copyOfRange(buffer, 1, buffer.length);
+                    byte chk = 0;
                     IResponse res = new ResponseImpl(ack,payload,chk);
                     IMessage msg = new MessageImpl(null, res , null, comAdr, comFunc);
 
+                    System.out.println(new Date().toString() + " Comport: Received = ack: " +  res.getAck() + " payload: " + Arrays.toString(res.getPayload()) + " intPayload: "  + msg.getPayload() + " :: comAdr: " + comAdr + " Func: " + comFunc );
                     super.notifyObservers(msg);
                 }
                 catch (SerialPortException ex) {
