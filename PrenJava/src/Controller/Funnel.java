@@ -7,7 +7,7 @@ public class Funnel {
 	private Command com = null;
     private short comAdr = 0;
     private short delay = 2000;
-
+    private String comFunc = "";
 
 	
 	public Funnel(Command com) {
@@ -19,13 +19,15 @@ public class Funnel {
     public short GetComAdr(){return comAdr;}
 	
 	public void Open(){
-        System.out.println(new Date().toString() + ": Funnel.Open");
-        com.Send(Command.DCMove((short)0, 0, 120, true),comAdr);
+        comFunc = "Funnel.Open";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.DCMove((short)0, 0, 120, true),comAdr, comFunc);
     }
 
     public void Close(){
-        System.out.println(new Date().toString() + ": Funnel.Close");
-        com.Send(Command.DCMove((short)1, 0, 120, true),comAdr);
+        comFunc = "Funnel.Close";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.DCMove((short)1, 0, 120, true),comAdr, comFunc);
     }
 
 }

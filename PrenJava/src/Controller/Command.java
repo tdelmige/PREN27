@@ -34,7 +34,7 @@ public class Command implements IObserver<IMessage>{
 	
 	static 
 	{		
-		ComPort.PortNr = "COM5";
+		ComPort.PortNr = "COM6";
 		com = new ComPort();
 		
 	}
@@ -47,11 +47,11 @@ public class Command implements IObserver<IMessage>{
     public static ComPort getComPortInst() {return com;}
 	public static short getComAdr() {return ++adr;}
 	
-	public void Send(byte[] cmd, short comAdr)
+	public void Send(byte[] cmd, short comAdr, String func)
 	{
 
 		//�ber event l�sen = answer auswerten
-		while(!com.Write(cmd, comAdr))
+		while(!com.Write(cmd, comAdr, func))
 		{
 			//String exception = com.LastResponse();
 		}

@@ -8,4 +8,5 @@ public interface IMessage {
 	public IResponse getResponse();
 	public Exception getException();
 	public short getComAdr();
+    public String getFunction();
 }

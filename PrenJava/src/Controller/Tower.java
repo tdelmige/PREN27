@@ -3,12 +3,15 @@ package Controller;
 import Common.IMessage;
 import Common.IObserver;
 
+import java.nio.ByteBuffer;
 import java.util.Date;
 
 public class Tower implements IObserver<IMessage> {
 	
 	private Command com =null;
     private short comAdr = 0;
+    private String comFunc = "";
+    private IMessage response;
 
     private final short MOTOR = 3;
     private final short LEFT = 1;
@@ -27,28 +30,46 @@ public class Tower implements IObserver<IMessage> {
     public short GetComAdr(){return comAdr;}
 
     public void MoveLeft(){
+        comFunc = "Tower.MoveLeft";
         System.out.println(new Date().toString() + ": Tower.MoveLeft");
-        com.Send(Command.Move(MOTOR, LEFT, speed, acc, dec), comAdr);
+        com.Send(Command.Move(MOTOR, LEFT, speed, acc, dec), comAdr, comFunc);
     }
 
     public void MoveLeft(short pos) {
-        System.out.println(new Date().toString() + ": Tower.MoveLeft steps: " + pos);
-        com.Send(Command.MoveTo(MOTOR, LEFT, pos, speed, acc, dec), comAdr);
+        comFunc = "Tower.MoveLeft steps: " + pos;
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.MoveTo(MOTOR, LEFT, pos, speed, acc, dec), comAdr, comFunc);
     }
 
     public void MoveRight(){
-        System.out.println(new Date().toString() + ": Tower.MoveRight");
-        com.Send(Command.Move(MOTOR, RIGHT, speed, acc, dec), comAdr);
+        comFunc = "Tower.MoveRight";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.Move(MOTOR, RIGHT, speed, acc, dec), comAdr, comFunc);
     }
 
 	public void MoveRight(short pos){
-        System.out.println(new Date().toString() + ": Tower.MoveRight steps: " + pos);
-        com.Send(Command.MoveTo(MOTOR, RIGHT, pos, speed, acc, dec), comAdr);
+        comFunc = "Tower.MoveRight steps: " + pos;
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.MoveTo(MOTOR, RIGHT, pos, speed, acc, dec), comAdr, comFunc);
 	}
 
     public void Stop(boolean hardStop) {
-        System.out.println(new Date().toString() + ": Tower.Stop");
-        com.Send(Command.StopMove(MOTOR, hardStop), comAdr);
+        comFunc = "Tower.Stop";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.StopMove(MOTOR, hardStop), comAdr, comFunc);
+    }
+
+    public int GetPosHorizontal(){
+        comFunc = "Tower.GetPosHorizontal";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.GetAbsPos(MOTOR), comAdr, comFunc);
+
+        while(response != null){
+            byte[] pos = response.getResponse().getPayload();
+            return ByteBuffer.wrap(pos).getInt();
+        }
+
+        return 0;
     }
 
 
@@ -56,7 +77,7 @@ public class Tower implements IObserver<IMessage> {
     public void update(IMessage arg) {
 
         if (arg.getComAdr() == comAdr){
-
+            response = arg;
         }
     }
 }

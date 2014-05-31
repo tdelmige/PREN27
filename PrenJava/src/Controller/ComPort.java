@@ -23,6 +23,7 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
 	private static short timeout = 50;
 	private boolean lock = false;
 	private short comAdr;
+    private String comFunc;
 	
 	public ComPort(){
 		ports = SerialPortList.getPortNames();
@@ -72,12 +73,13 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
         return null;
 	}	
 	
-	public boolean Write(byte[] msg, short adr)
+	public boolean Write(byte[] msg, short adr, String func)
 	{
 		if (!this.lock)
 		{
 	        try {
 	        	comAdr = adr;
+                comFunc = func;
 	        	port.writeBytes(msg);//Write data to port
 	        	this.lock = true;
 	        	timer.start();
@@ -117,7 +119,7 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
                     byte[] payload = Arrays.copyOfRange(buffer, 1, buffer.length-2);
                     byte chk = buffer[buffer.length-1];
                     IResponse res = new ResponseImpl(ack,payload,chk);
-                    IMessage msg = new MessageImpl(null, res , null, comAdr);
+                    IMessage msg = new MessageImpl(null, res , null, comAdr, comFunc);
 
                     super.notifyObservers(msg);
                 }

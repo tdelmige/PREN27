@@ -34,6 +34,8 @@ public class RobotController implements GUIListener {
 
     private static Command command;
     private static short comAdr;
+    private static String comFunc = "";
+
     private Tower tower;
     private Harpune harpune;
     private Funnel funnel;
@@ -54,9 +56,9 @@ public class RobotController implements GUIListener {
         harpune = new Harpune(command);
         funnel = new Funnel(command);
         filterPicker = new FilterPicker();
-        //propertyManager = new PropertyManager();
-        //filterSet = propertyManager.getFilterSet();
-        //customFilterSet = propertyManager.getFilterSet();
+        propertyManager = new PropertyManager();
+        filterSet = propertyManager.getFilterSet();
+        customFilterSet = propertyManager.getFilterSet();
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -281,10 +283,11 @@ public class RobotController implements GUIListener {
 
     public static void Stop()
     {
-        System.out.println(new Date().toString() + ": RobotController.Stop");
+        comFunc = "RobotController.Stop";
+        System.out.println(new Date().toString() + ": " + comFunc);
 
         for(short i=0; i<5; i++){
-            command.Send(Command.StopMove(i, true),comAdr);
+            command.Send(Command.StopMove(i, true),comAdr, comFunc);
         }
     }
 

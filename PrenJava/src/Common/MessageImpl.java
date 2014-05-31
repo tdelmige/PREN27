@@ -8,14 +8,15 @@ public class MessageImpl implements IMessage {
 	private IResponse response;
 	private Exception exception;
 	private Short comAdr;
+    private String function;
 	
-	public MessageImpl(String mes, IResponse res, Exception ex, Short adr){
+	public MessageImpl(String mes, IResponse res, Exception ex, Short adr, String function){
 		this.message = mes;
 
 		this.response = res;
 		this.exception = ex;
 		this.comAdr = adr;
-
+        this.function = function;
         this.acknowledge = res.getAck() !=0;
         this.checksum = (short)res.getChecksum();
 
@@ -51,7 +52,12 @@ public class MessageImpl implements IMessage {
 	public short getComAdr() {
 		return comAdr;
 	}
-	
+
+    @Override
+    public String getFunction() {
+        return function;
+    }
+
 }
 
 

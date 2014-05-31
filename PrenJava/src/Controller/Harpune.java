@@ -2,7 +2,9 @@ package Controller;
 
 import Common.IMessage;
 import Common.IObserver;
+import Common.IResponse;
 
+import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.Timer;
 
@@ -36,12 +38,16 @@ public class Harpune implements IObserver<IMessage> {
 	private short delay = 1000;
 	private Command com = null;
     private short comAdr = 0;
+    private String comFunc = "";
+    private IMessage response;
+
     private short speed = 50;
     private short acc = 0;
     private short dec = 0;
     private short posPull = 40;
     private short posLoose = 0;
     private short speedHarpune = 5 ;
+
 
 	public Harpune(Command com) {
 		this.com = com;
@@ -54,7 +60,8 @@ public class Harpune implements IObserver<IMessage> {
 	//Abschuss = SetPin 1 High und SetPin 1 Low
 	public void Fire()
 	{
-        System.out.println(new Date().toString() + ": Harpune.Fire");
+        comFunc = "Harpune.Fire";
+        System.out.println(new Date().toString() + ": " + comFunc);
 		Command.SetPin((short)1, true);
 		try 
 		{
@@ -68,104 +75,128 @@ public class Harpune implements IObserver<IMessage> {
 
     // ebenfalls close bei Funnel
 	public void Pull() {
-        System.out.println(new Date().toString() + ": Harpune.Pull");
-        com.Send(Command.MoveTo(JIG, UP, JIG_MIN, speedPull, accPull, decPull), comAdr);
+        comFunc = "Harpune.Pull";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.MoveTo(JIG, UP, JIG_MIN, speedPull, accPull, decPull), comAdr, comFunc);
     }
 
     public void Loose() {
-        System.out.println(new Date().toString() + ": Harpune.Loose");
-        com.Send(Command.MoveTo(JIG, DOWN, JIG_MAX, speedLoose, accLoose, decLoose), comAdr);
+        comFunc = "Harpune.Loose";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.MoveTo(JIG, DOWN, JIG_MAX, speedLoose, accLoose, decLoose), comAdr, comFunc);
     }
 
     public void stopPullLoose(boolean hardStop) {
-        System.out.println(new Date().toString() + ": Harpune.stopPullLoose");
-        com.Send(Command.StopMove(JIG, hardStop), comAdr);
+        comFunc = "Harpune.stopPullLoose";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.StopMove(JIG, hardStop), comAdr, comFunc);
     }
 
     public void MoveLeft(){
-        System.out.println(new Date().toString() + ": Harpune.MoveLeft");
-        com.Send(Command.Move(HORIZONTAL, LEFT, speedHarpune, acc, dec), comAdr);
+        comFunc = "Harpune.MoveLeft";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.Move(HORIZONTAL, LEFT, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
     public void MoveLeft(int pos){
-        System.out.println(new Date().toString() + ": Harpune.MoveLeft to:" +pos);
-        com.Send(Command.MoveTo(HORIZONTAL, LEFT, pos, speedHarpune, acc, dec), comAdr);
+        comFunc = "Harpune.MoveLeft to: " +pos;
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.MoveTo(HORIZONTAL, LEFT, pos, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
     public void MoveRight(){
-        System.out.println(new Date().toString() + ": Harpune.MoveRight");
-        com.Send(Command.Move(HORIZONTAL, RIGHT, speedHarpune, acc, dec), comAdr);
+        comFunc = "Harpune.MoveRigh";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.Move(HORIZONTAL, RIGHT, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
     public void MoveRight(int pos){
-        System.out.println(new Date().toString() + ": Harpune.MoveRight to:" +pos);
-        com.Send(Command.MoveTo(HORIZONTAL, RIGHT, pos, speedHarpune, acc, dec), comAdr);
+        comFunc = "Harpune.MoveRight to:" +pos;
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.MoveTo(HORIZONTAL, RIGHT, pos, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
     public void MoveAroundLeft(){
-        System.out.println(new Date().toString() + ": Harpune.MoveAroundLeft");
-        com.Send(Command.Move(HORIZONTAL, LEFT, speedHarpune, acc, dec), comAdr);
+        comFunc = "Harpune.MoveAroundLeft";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.Move(HORIZONTAL, LEFT, speedHarpune, acc, dec), comAdr, comFunc);
 
     }
 
     public void MoveAroundRight(){
-        System.out.println(new Date().toString() + ": Harpune.MoveAroundRight");
-        com.Send(Command.Move(HORIZONTAL, RIGHT, speedHarpune, acc, dec), comAdr);
+        comFunc = "Harpune.MoveAroundRight";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.Move(HORIZONTAL, RIGHT, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
     public void stopHorizontalMove(boolean hardStop) {
-        System.out.println(new Date().toString() + ": Harupune.StopHorizontalMove");
-        com.Send(Command.StopMove(HORIZONTAL, hardStop), comAdr);
+        comFunc = "Harpune.StopHorizontalMove";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.StopMove(HORIZONTAL, hardStop), comAdr, comFunc);
     }
 
     public void MoveUp(){
-        System.out.println(new Date().toString() + ": Harpune.MoveUp");
-        com.Send(Command.Move(VERTICAL, UP, speedHarpune, acc, dec), comAdr);
+        comFunc = "Harpune.MoveUp";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.Move(VERTICAL, UP, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
     public void MoveUp(int pos){
-        System.out.println(new Date().toString() + ": Harpune.MoveUp, steps:" +pos);
-        com.Send(Command.MoveTo(VERTICAL, UP, pos, speedHarpune, acc, dec), comAdr);
+        comFunc = "Harpune.MoveUp, steps:" +pos;
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.MoveTo(VERTICAL, UP, pos, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
     public void MoveDown(){
-        System.out.println(new Date().toString() + ": Harpune.MoveDown");
-        com.Send(Command.Move(VERTICAL, DOWN, speedHarpune, acc, dec), comAdr);
+        comFunc = "Harpune.MoveDown";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.Move(VERTICAL, DOWN, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
     public void MoveDown(int pos){
-        System.out.println(new Date().toString() + ": Harpune.MoveDown, steps:" +pos);
-        com.Send(Command.MoveTo(VERTICAL, UP, pos, speedHarpune, acc, dec), comAdr);
+        comFunc = "Harpune.MoveDown, steps:" +pos;
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.MoveTo(VERTICAL, UP, pos, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
     public void StopVerticalMove(boolean hardStop) {
-        System.out.println(new Date().toString() + ": Harpune.StopVerticalMove");
-        com.Send(Command.StopMove(VERTICAL, hardStop), comAdr);
+        comFunc = "Harpune.StopVerticalMove";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.StopMove(VERTICAL, hardStop), comAdr, comFunc);
     }
 
     public int GetPosHorizontal(){
-        System.out.println(new Date().toString() + ": Harpune.GetPosition");
-        com.Send(Command.GetAbsPos(HORIZONTAL), comAdr);
+        comFunc = "Harpune.GetPosHorizontal";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.GetAbsPos(HORIZONTAL), comAdr, comFunc);
 
-
+        while(response != null){
+            byte[] pos = response.getResponse().getPayload();
+            return ByteBuffer.wrap(pos).getInt();
+        }
 
         return 0;
     }
 
     public int GetPosVertical() {
-        System.out.println(new Date().toString() + ": Harpune.GetPosition");
-        com.Send(Command.GetAbsPos(VERTICAL), comAdr);
+        comFunc = "Harpune.GetPosVertical";
+        System.out.println(new Date().toString() + ": " + comFunc);
+        com.Send(Command.GetAbsPos(VERTICAL), comAdr, comFunc);
 
-
+        while(response != null){
+            byte[] pos = response.getResponse().getPayload();
+            return ByteBuffer.wrap(pos).getInt();
+        }
 
         return 0;
     }
+
 
     @Override
     public void update(IMessage arg) {
 
         if (arg.getComAdr() == comAdr){
-
+            response = arg;
         }
     }
 }
