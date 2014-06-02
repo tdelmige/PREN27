@@ -33,7 +33,7 @@ public class Command implements IObserver<IMessage>{
 	private short comAdr;
 	
 	static 
-	{		
+	{
 		ComPort.PortNr = "COM6";
 		com = new ComPort();
 		
@@ -70,9 +70,7 @@ public class Command implements IObserver<IMessage>{
 		cmd[0] = InitMove;
 		cmd[1] = (byte) motor;
 		cmd[2] = (byte) dir;
-		
 
-		
 		return cmd;
 	}
 	
@@ -80,7 +78,7 @@ public class Command implements IObserver<IMessage>{
 
         byte[] bytes = intToByteArray3(pos);
 
-        System.out.println(new Date().toString() + "Command.MoveTo : Converted int: " + byteArrayToInt(bytes));
+        //System.out.println(new Date().toString() + "Command.MoveTo : Converted int: " + byteArrayToInt(bytes));
 
 		byte[] cmd = new byte[byteLength];
 		cmd[0] = MoveTo;
@@ -92,10 +90,6 @@ public class Command implements IObserver<IMessage>{
 		cmd[6] = (byte) speed;
 		cmd[7] = (byte) acc;
 		cmd[8] = (byte) dec;
-
-        for (byte b : cmd) {
-            System.out.format("%x ", b);
-        }
 
 		return cmd;
 	}
@@ -131,10 +125,7 @@ public class Command implements IObserver<IMessage>{
 		cmd[3] = (byte) speed;
 		cmd[4] = (byte) acc;
 		cmd[5] = (byte) dec;
-		for (byte b : cmd) {
-            System.out.print(b + " ");
-        }
-        System.out.println();
+
 		return cmd;
 	}
 	 
@@ -144,11 +135,6 @@ public class Command implements IObserver<IMessage>{
 		cmd[0] = StopMove;
 		cmd[1] = (byte) motor;
 		cmd[2] = (byte) (hardstop ? 1 : 0);
-
-        for (byte b : cmd) {
-            System.out.print(b + " ");
-        }
-        System.out.println();
 		
 		return cmd;
 	}
@@ -254,7 +240,7 @@ public class Command implements IObserver<IMessage>{
                 //Fehler
                 else {
                     String msg = arg.getMessage();
-                    System.out.println(msg);
+                    System.out.println(new Date().toString() + " Command.Update: " +msg);
                 }
             }
         }

@@ -1,6 +1,7 @@
 package Common;
 
 import java.nio.ByteBuffer;
+import java.util.Date;
 
 public class MessageImpl implements IMessage {
 
@@ -24,15 +25,15 @@ public class MessageImpl implements IMessage {
         this.acknowledge = res.getAck() !=0;
         this.checksum = (short)res.getChecksum();
 
-        try {
-
+        try
+        {
             byte[] buffer = res.getPayload();
             int payload =  byteArrayToInt(buffer);
             this.payload = payload;
         }
         catch (Exception ex)
         {
-            System.out.println(ex.getMessage());
+            System.out.println(new Date().toString() + " Commmand.MessageImpl: "+ ex.getMessage());
             ex.printStackTrace();
         }
 

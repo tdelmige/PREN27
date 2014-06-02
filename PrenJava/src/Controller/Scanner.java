@@ -1,6 +1,7 @@
 package Controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 
 import Common.Color;
@@ -67,7 +68,7 @@ public class Scanner {
             e.printStackTrace();
         }
         harpune.stopHorizontalMove(false);
-        System.out.println(getCounts());
+        System.out.println(new Date().toString() + " Scanner.run: " + getCounts());
         bScanning = false;
     }
 
@@ -82,7 +83,7 @@ public class Scanner {
         worker3 = yellowCounter;
         worker4 = blueCounter;
 
-        System.out.println("Start Scanning...");
+        System.out.println(new Date().toString() + "Scanner.scan: Start Scanning...");
         capture = new VideoCapture(0);
         while (bScanning) {
             if (capture.isOpened()) {
@@ -122,7 +123,7 @@ public class Scanner {
 
             }
         }
-        System.out.println("Stop Scanning.");
+        System.out.println(new Date().toString() +"Scanner.scan: Stop Scanning.");
     }
 
     public CubeCounter getHighestCounter() {
@@ -152,7 +153,7 @@ public class Scanner {
 
         capture = new VideoCapture(file);
 
-        System.out.println("Start Scanning...");
+        System.out.println(new Date().toString() + "Scanner.scanFromFile: Start Scanning...");
         while (true) {
             if (capture.isOpened()) {
                 capture.read(input);
@@ -189,7 +190,7 @@ public class Scanner {
                     output.release();
                 }
                 else {
-                    System.out.println(getCounts());
+                    System.out.println(new Date().toString() + "Scanner.scanFromFile: " + getCounts());
                     capture.open(file);
                     redCounter.resetCount();
                     yellowCounter.resetCount();

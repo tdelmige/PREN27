@@ -156,7 +156,7 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
 
         if (x == 0 && y == 0){
 
-            System.out.println(new Date().toString() + ": Aimbot.moveToCube: already in Center");
+            System.out.println(new Date().toString() + " Aimbot.moveToCube: already in Center");
             return true;
         }
 

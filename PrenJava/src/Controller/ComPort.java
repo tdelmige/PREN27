@@ -21,10 +21,15 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
 	private static short timeout = 50;
 	private boolean lock = false;
 	private short comAdr;
+    private byte[] lastMessage;
     private String comFunc;
 	
 	public ComPort(){
-		ports = SerialPortList.getPortNames();
+        ports = SerialPortList.getPortNames();
+        for(int i = 0; i < ports.length; i++){
+            System.out.println(new Date().toString() + " ComPort.ComPort: "+ ports[i]);
+        }
+
 		Init(PortNr);
 
 		timer = new Timer(timeout, new ActionListener() {
@@ -54,7 +59,7 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
 
         }
         catch (SerialPortException ex) {
-            System.out.println(ex);
+            System.out.println(new Date().toString() + " ComPort.Init: "+ ex);
         }
 
 	}
@@ -65,7 +70,7 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
 
         }
         catch (SerialPortException ex) {
-            System.out.println(ex);
+            System.out.println(new Date().toString() + " ComPort.Read: "+ ex);
         }
         
         return null;
@@ -85,19 +90,23 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
 	
 	        }
 	        catch (SerialPortException ex) {
-	            System.out.println(ex);
+                System.out.println(new Date().toString() + " ComPort.Write: "+ ex);
 	        }
 	        return true;
         }
 		return false;
 	}
+
+    private void SendAgain(){
+        Write(lastMessage, comAdr, comFunc);
+    }
 	
 	public void ClosePort(){
         try {
         	port.closePort();//Close serial port
         }
         catch (SerialPortException ex) {
-            System.out.println(ex);
+            System.out.println(new Date().toString() + " ComPort.ClosePort: "+ ex);
         }
 	}
 
@@ -112,36 +121,45 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
                     byte[] buffer = null;
                     buffer = port.readBytes();
                     System.out.println(new Date().toString() + " Comport : Received = " +  Arrays.toString(buffer));
-                    this.lock = false;
 
                     byte ack = buffer[0];
                     byte[] payload = Arrays.copyOfRange(buffer, 1, buffer.length);
                     byte chk = 0;
-                    IResponse res = new ResponseImpl(ack,payload,chk);
-                    IMessage msg = new MessageImpl(null, res , null, comAdr, comFunc);
 
-                    System.out.println(new Date().toString() + " Comport: Received = ack: " +  res.getAck() + " payload: " + Arrays.toString(res.getPayload()) + " intPayload: "  + msg.getPayload() + " :: comAdr: " + comAdr + " Func: " + comFunc );
-                    super.notifyObservers(msg);
+                    if (ack == 1)
+                    {
+                        this.lock = false;
+                        IResponse res = new ResponseImpl(ack,payload,chk);
+                        IMessage msg = new MessageImpl(null, res , null, comAdr, comFunc);
+
+                        System.out.println(new Date().toString() + " Comport: Received = ack: " +  res.getAck() + " payload: " + Arrays.toString(res.getPayload()) + " intPayload: "  + msg.getPayload() + " :: comAdr: " + comAdr + " Func: " + comFunc );
+                        super.notifyObservers(msg);
+                    }
+                    // Im Fehlerfahl nochmals senden
+                    else
+                    {
+                        SendAgain();
+                    }
                 }
                 catch (SerialPortException ex) {
-                    System.out.println(ex);
+                    System.out.println(new Date().toString() + " ComPort.serialEvent: "+ ex);
                 }
             //}
         }
         else if(event.isCTS()){//If CTS line has changed state
             if(event.getEventValue() == 1){//If line is ON
-                System.out.println("CTS - ON");
+                System.out.println(new Date().toString() +"ComPort.serialEvent: CTS - ON");
             }
             else {
-                System.out.println("CTS - OFF");
+                System.out.println(new Date().toString() +"ComPort.serialEvent: CTS - OFF");
             }
         }
         else if(event.isDSR()){///If DSR line has changed state
             if(event.getEventValue() == 1){//If line is ON
-                System.out.println("DSR - ON");
+                System.out.println(new Date().toString() +"ComPort.serialEvent: DSR - ON");
             }
             else {
-                System.out.println("DSR - OFF");
+                System.out.println(new Date().toString() +"ComPort.serialEvent: DSR - OFF");
             }
         }
 	}
