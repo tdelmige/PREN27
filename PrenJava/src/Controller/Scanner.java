@@ -238,10 +238,10 @@ public class Scanner implements Runnable {
 
     private boolean moveLeft(int steps){
 
-        int pos = harpune.GetPosHorizontal();
+        int pos = harpune.GetPosHorizontal() + steps;
         if (pos > harpune.MaxPos){ return false;}
 
-        harpune.MoveLeft(steps);
+        harpune.MoveLeft(pos);
 
         return true;
     }
