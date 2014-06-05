@@ -49,7 +49,7 @@ public class Harpune implements IObserver<IMessage> {
     private short posLoose = 0;
     private short speedHarpune = 5 ;
 
-    private int maxPos = 4194303;
+    public final int MaxPos = 4194303;
 
 
 	public Harpune(Command com) {

@@ -314,36 +314,36 @@
                     <properties/>
                     <border type="none" title="Control"/>
                     <children>
-                      <component id="a792f" class="javax.swing.JButton" binding="startButton" default-binding="true">
+                      <component id="a792f" class="javax.swing.JButton" binding="btnStartFilterPicker">
                         <constraints>
                           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties>
-                          <text value="Start"/>
+                          <text value="Start FilterPicker"/>
                         </properties>
                       </component>
-                      <component id="6966f" class="javax.swing.JButton" binding="stopButton" default-binding="true">
+                      <component id="6966f" class="javax.swing.JButton" binding="btnStopFilterPicker">
                         <constraints>
                           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties>
-                          <text value="Stop"/>
+                          <text value=" Stop FilterPicker"/>
                         </properties>
                       </component>
-                      <component id="67d88" class="javax.swing.JButton" binding="btnScanner">
+                      <component id="67d88" class="javax.swing.JButton" binding="btnStartAutoAim">
                         <constraints>
                           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties>
-                          <text value="Start Scanner"/>
+                          <text value="Start AutoAim"/>
                         </properties>
                       </component>
-                      <component id="94ddc" class="javax.swing.JButton" binding="btnScannerStop">
+                      <component id="94ddc" class="javax.swing.JButton" binding="btnStopAutoAim">
                         <constraints>
                           <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties>
-                          <text value="Stop "/>
+                          <text value="Stop AutoAim"/>
                         </properties>
                       </component>
                     </children>

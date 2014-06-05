@@ -14,10 +14,11 @@ import org.opencv.imgproc.Imgproc;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Scanner {
+public class Scanner implements Runnable {
 
     private boolean bScanning = false;
     private int scanTime = 10000;
+    private int scanSteps = 500000;
 
     private FilterSet filterSet;
     private TargetZone targetZone;
@@ -52,6 +53,7 @@ public class Scanner {
         yellowCounter.setTargetZone(targetZone);
     }
 
+    @Override
     public void run() {
         bScanning = true;
         Thread t = new Thread(new Runnable() {
@@ -61,13 +63,22 @@ public class Scanner {
             }
         });
         t.start();
-        harpune.MoveLeft();
+
         try {
             Thread.sleep(scanTime);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        harpune.stopHorizontalMove(false);
+
+        while(moveLeft(scanSteps))
+        {
+            try {
+                Thread.sleep(scanTime);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
         System.out.println(new Date().toString() + " Scanner.run: " + getCounts());
         bScanning = false;
     }
@@ -214,6 +225,29 @@ public class Scanner {
         s = s + "\nRot: " + redCounter.getCount();
         s = s + "\nGelb: " + yellowCounter.getCount();
         return s;
+    }
+
+    public CubeCounter getMostCubeCounter(){
+        CubeCounter counter = greenCounter;
+        if (counter.getCount() < blueCounter.getCount()){ counter = blueCounter;}
+        if (counter.getCount() < yellowCounter.getCount()){ counter = yellowCounter;}
+        if (counter.getCount() < redCounter.getCount()){ counter = redCounter;}
+
+        return counter;
+    }
+
+    private boolean moveLeft(int steps){
+
+        int pos = harpune.GetPosHorizontal();
+        if (pos > harpune.MaxPos){ return false;}
+
+        harpune.MoveLeft(steps);
+
+        return true;
+    }
+
+    public void Stop(){
+        bScanning = false;
     }
 
 }

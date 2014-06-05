@@ -21,7 +21,7 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
     private Harpune harpune;
 
     private boolean waitflag =false;
-
+    public boolean Stop = false;
 
     public Aimbot(VideoCapture capture, CubeCounter counter, Harpune harpune){
         this.capture = capture;
@@ -49,32 +49,34 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
 
         if (capture.isOpened())
         {
-            capture.read(input);
-            if (!input.empty())
+            while(!Stop)
             {
-                Imgproc.cvtColor(input, output, Imgproc.COLOR_BGR2HSV);
+                capture.read(input);
+                if (!input.empty())
+                {
+                    Imgproc.cvtColor(input, output, Imgproc.COLOR_BGR2HSV);
 
-                List<Cube> cubes = counter.getCubes(output);
-                try {
-                    Cube cube = getNextCube(cubes);
-                    if (moveToCube(cube, output)){
-                        //Todo: Wait for StopSignal && timeout falls kein signal
+                    List<Cube> cubes = counter.getCubes(output);
+                    try {
+                        Cube cube = getNextCube(cubes);
+                        if (moveToCube(cube, output)){
+                            //Todo: Wait for StopSignal && timeout falls kein signal
 
-                        waitForAnswer(30000);
+                            waitForAnswer(30000);
 
-                        harpune.Fire();
+                            harpune.Fire();
 
-                        //Todo: getroffen?
+                            //Todo: getroffen?
 
-                        // Todo: Überwachungs das Cube auch gezogen wird!
-                        harpune.Pull();
-                        Thread.sleep(4000);
+                            // Todo: Überwachungs das Cube auch gezogen wird!
+                            harpune.Pull();
+                            Thread.sleep(4000);
+                        }
+
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
                 }
-
             }
         }
     }

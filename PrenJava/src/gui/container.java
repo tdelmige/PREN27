@@ -9,8 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import ImageProcessing.ColorFilter;
 import ImageProcessing.Crosshair;
@@ -50,7 +48,7 @@ public class container {
     private JButton blueButton;
     private JButton yellowButton;
     private JButton greenButton;
-    private JButton startButton;
+    private JButton btnStartFilterPicker;
     private JTextField txtPosition;
     private JButton setButton1;
     private JTextField txtCrosshairSize;
@@ -61,12 +59,12 @@ public class container {
     private JPanel panControls;
     private JPanel origImage;
     private JPanel statusBar;
-    private JButton stopButton;
-    private JButton btnScanner;
+    private JButton btnStopFilterPicker;
+    private JButton btnStartAutoAim;
     private JLabel imageAiming;
     private JButton startButton1;
     private JButton stopButton1;
-    private JButton btnScannerStop;
+    private JButton btnStopAutoAim;
     private ImageIcon originalIcon;
     private ImageIcon processedIcon;
     private ImageIcon image;
@@ -168,20 +166,36 @@ public class container {
                 updateTextFields();
             }
         });
-        startButton.addActionListener(new ActionListener() {
+        btnStartFilterPicker.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                startButton.setEnabled(false);
-                stopButton.setEnabled(true);
+                btnStartFilterPicker.setEnabled(false);
+                btnStopFilterPicker.setEnabled(true);
                 parent.fireStartFiltering();
             }
         });
-        stopButton.addActionListener( new ActionListener() {
+        btnStopFilterPicker.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                startButton.setEnabled(true);
-                stopButton.setEnabled(false);
+                btnStartFilterPicker.setEnabled(true);
+                btnStopFilterPicker.setEnabled(false);
                 parent.fireStopFiltering();
+            }
+        });
+        btnStartAutoAim.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnStartAutoAim.setEnabled(false);
+                btnStopAutoAim.setEnabled(true);
+                parent.startAutoAim();
+            }
+        });
+        btnStopAutoAim.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnStartAutoAim.setEnabled(true);
+                btnStopAutoAim.setEnabled(false);
+                parent.stopAutoAim();
             }
         });
         startButton1.addActionListener(new ActionListener() {
@@ -445,9 +459,9 @@ public class container {
         panel5.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 1, new Insets(5, 5, 5, 5), -1, -1));
         panel1.add(panel5, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         panel5.setBorder(BorderFactory.createTitledBorder("Target Detection"));
-        startButton = new JButton();
-        startButton.setText("Enable ");
-        panel5.add(startButton, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btnStartFilterPicker = new JButton();
+        btnStartFilterPicker.setText("Enable ");
+        panel5.add(btnStartFilterPicker, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final com.intellij.uiDesigner.core.Spacer spacer5 = new com.intellij.uiDesigner.core.Spacer();
         panel1.add(spacer5, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_VERTICAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 15), null, 0, false));
         final JPanel panel6 = new JPanel();
