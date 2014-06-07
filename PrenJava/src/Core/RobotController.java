@@ -83,12 +83,9 @@ public class RobotController implements GUIListener {
             }
         });
 
-        init();
         //scanner.scanFromFile("PrenJava/res/vid2.m4v");
         //filterPicker.setFile("PrenJava/Res/vid2.m4v");
         //filterPicker.setColorFilter(filterSet.getColorFilter(Color.RED));
-
-
 
         while(!Close) {}
         System.exit(0);
@@ -340,6 +337,7 @@ public class RobotController implements GUIListener {
     @Override
     public void startAutoAim(){
 
+        scanner = new Scanner(customFilterSet, capture, harpune);
         Thread tScanner = new Thread(scanner);
         tScanner.start();
 
@@ -381,7 +379,6 @@ public class RobotController implements GUIListener {
 
     public void start() {
         // 1. init Parameter
-        init();
         // 1. Tower in Position
         tower.MoveRight();
         // 2. Scanner
@@ -393,10 +390,5 @@ public class RobotController implements GUIListener {
         funnel.Open();
         // 5. Tower back to Start
         tower.MoveLeft();
-    }
-
-    private void init()
-    {
-        scanner = new Scanner(filterSet, capture, harpune);
     }
 }

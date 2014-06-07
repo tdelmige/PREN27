@@ -135,5 +135,9 @@ public class Gui extends JComponent {
     public void fireSetCrosshairSize(Size size) {
         listener.setCrosshairSize(size);
     }
+
+    public void fireSave() {
+        listener.save();
+    }
 }
 
