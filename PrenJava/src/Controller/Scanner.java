@@ -18,7 +18,7 @@ public class Scanner implements Runnable {
 
     private boolean bScanning = false;
     private int scanTime = 10000;
-    private int scanSteps = 500000;
+    private int scanSteps = 4000000;
 
     private FilterSet filterSet;
     private TargetZone targetZone;
@@ -55,6 +55,10 @@ public class Scanner implements Runnable {
     @Override
     public void run() {
         bScanning = true;
+
+        //Init
+        harpune.MoveUp(28444);
+
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {

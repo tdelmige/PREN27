@@ -70,6 +70,7 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
                                 //Harpune wartet in den Move Befehlen
                                 //waitForAnswer(30000);
 
+                                harpune.Loose();
                                 harpune.Fire();
 
                                 //Todo: getroffen?
