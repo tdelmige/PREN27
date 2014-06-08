@@ -23,7 +23,7 @@ public class CubeCounter implements Runnable {
     private TargetZone targetZone;
     private int Count;
 
-    public CubeCounter(ColorFilter Filter, double minArea) {
+    public CubeCounter(ColorFilter Filter) {
         this.Filter = Filter;
         this.Finder = new CubeFinder();
     }

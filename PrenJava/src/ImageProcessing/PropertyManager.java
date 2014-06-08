@@ -3,8 +3,7 @@ package ImageProcessing;
 import Common.Color;
 import org.opencv.core.Scalar;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Properties;
 
 import static ImageProcessing.ColorFilter.*;
@@ -13,12 +12,24 @@ import static ImageProcessing.ColorFilter.*;
  * Created by raffaelsteinmann on 13.05.14.
  */
 public class PropertyManager {
+
+    private final String FILE = "PrenJava/res/config.properties";
+
     private Properties config;
+
 
     public PropertyManager() {
         config = new Properties();
         try {
-            config.load(new FileInputStream("PrenJava/res/config.properties"));
+            config.load(new FileInputStream(FILE));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void save(){
+        try {
+            config.store(new FileOutputStream(FILE), null);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -28,21 +39,22 @@ public class PropertyManager {
         for (Color c : Color.values()) {
             saveColorFilter(c.toString(), filterSet.getColorFilter(c));
         }
+        save();
     }
 
     private void saveColorFilter(String color, ColorFilter filter){
         String lHue, uHue, lSat, uSat, lVal, uVal;
         String lHue2 = "", uHue2 = "";
 
-        lHue = Double.toString(filter.getHueLow());
-        lSat = Double.toString(filter.getSatLow());
-        lVal = Double.toString(filter.getValLow());
-        uHue = Double.toString(filter.getHueUp());
-        uSat = Double.toString(filter.getSatUp());
-        uVal = Double.toString(filter.getValUp());
+        lHue = Integer.toString((int)filter.getHueLow());
+        lSat = Integer.toString((int)filter.getSatLow());
+        lVal = Integer.toString((int)filter.getValLow());
+        uHue = Integer.toString((int)filter.getHueUp());
+        uSat = Integer.toString((int)filter.getSatUp());
+        uVal = Integer.toString((int)filter.getValUp());
         if (color.equals(Color.RED.toString())) {
-            lHue2 = Double.toString(filter.getHueLow2());
-            uHue2 = Double.toString(filter.getHueUp2());
+            lHue2 = Integer.toString((int)filter.getHueLow2());
+            uHue2 = Integer.toString((int)filter.getHueUp2());
         }
         config.setProperty(color + "_lHue", lHue);
         config.setProperty(color + "_uHue", uHue);
@@ -68,7 +80,7 @@ public class PropertyManager {
         ColorFilter filter;
         Scalar lower, upper;
         Scalar lower2, upper2;
-        int lHue, uHue, lSat, uSat, lVal, uVal;
+        int lHue,uHue, lSat, uSat, lVal, uVal;
         int lHue2, uHue2;
 
         lHue = Integer.valueOf(config.getProperty(color + "_lHue"));

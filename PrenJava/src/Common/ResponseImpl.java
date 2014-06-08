@@ -13,7 +13,7 @@ public class ResponseImpl implements IResponse {
 		this.checksum = che;
 		
 	}
-	
+
 	@Override
 	public byte getAck() {
 		return ack;

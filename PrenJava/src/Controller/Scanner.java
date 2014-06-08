@@ -1,6 +1,7 @@
 package Controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 
 import Common.Color;
@@ -13,10 +14,11 @@ import org.opencv.imgproc.Imgproc;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Scanner {
+public class Scanner implements Runnable {
 
     private boolean bScanning = false;
     private int scanTime = 10000;
+    private int scanSteps = 500000;
 
     private FilterSet filterSet;
     private TargetZone targetZone;
@@ -40,17 +42,17 @@ public class Scanner {
     public Scanner(FilterSet filterSet, VideoCapture capture, Harpune harpune) {
         this.capture = capture;
         this.harpune = harpune;
-        this.imShow = new ImShow("Test");
-        greenCounter = new CubeCounter(filterSet.getColorFilter(Color.GREEN), 400);
+        greenCounter = new CubeCounter(filterSet.getColorFilter(Color.GREEN));
         greenCounter.setTargetZone(targetZone);
-        redCounter = new CubeCounter(filterSet.getColorFilter(Color.RED), 400);
+        redCounter = new CubeCounter(filterSet.getColorFilter(Color.RED));
         redCounter.setTargetZone(targetZone);
-        blueCounter = new CubeCounter(filterSet.getColorFilter(Color.BLUE), 400);
+        blueCounter = new CubeCounter(filterSet.getColorFilter(Color.BLUE));
         blueCounter.setTargetZone(targetZone);
-        yellowCounter = new CubeCounter(filterSet.getColorFilter(Color.YELLOW), 400);
+        yellowCounter = new CubeCounter(filterSet.getColorFilter(Color.YELLOW));
         yellowCounter.setTargetZone(targetZone);
     }
 
+    @Override
     public void run() {
         bScanning = true;
         Thread t = new Thread(new Runnable() {
@@ -60,14 +62,23 @@ public class Scanner {
             }
         });
         t.start();
-        harpune.MoveLeft();
+        /*
         try {
             Thread.sleep(scanTime);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        harpune.stopHorizontalMove(false);
-        System.out.println(getCounts());
+        */
+        while(moveLeft(scanSteps))
+        {
+            try {
+                Thread.sleep(scanTime);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println(new Date().toString() + " Scanner.run: " + getCounts());
         bScanning = false;
     }
 
@@ -82,7 +93,7 @@ public class Scanner {
         worker3 = yellowCounter;
         worker4 = blueCounter;
 
-        System.out.println("Start Scanning...");
+        System.out.println(new Date().toString() + "Scanner.scan: Start Scanning...");
         capture = new VideoCapture(0);
         while (bScanning) {
             if (capture.isOpened()) {
@@ -122,7 +133,7 @@ public class Scanner {
 
             }
         }
-        System.out.println("Stop Scanning.");
+        System.out.println(new Date().toString() +"Scanner.scan: Stop Scanning.");
     }
 
     public CubeCounter getHighestCounter() {
@@ -152,7 +163,7 @@ public class Scanner {
 
         capture = new VideoCapture(file);
 
-        System.out.println("Start Scanning...");
+        System.out.println(new Date().toString() + "Scanner.scanFromFile: Start Scanning...");
         while (true) {
             if (capture.isOpened()) {
                 capture.read(input);
@@ -189,7 +200,7 @@ public class Scanner {
                     output.release();
                 }
                 else {
-                    System.out.println(getCounts());
+                    System.out.println(new Date().toString() + "Scanner.scanFromFile: " + getCounts());
                     capture.open(file);
                     redCounter.resetCount();
                     yellowCounter.resetCount();
@@ -213,6 +224,30 @@ public class Scanner {
         s = s + "\nRot: " + redCounter.getCount();
         s = s + "\nGelb: " + yellowCounter.getCount();
         return s;
+    }
+
+    public CubeCounter getMostCubeCounter(){
+        CubeCounter counter = greenCounter;
+        if (counter.getCount() < blueCounter.getCount()){ counter = blueCounter;}
+        if (counter.getCount() < yellowCounter.getCount()){ counter = yellowCounter;}
+        if (counter.getCount() < redCounter.getCount()){ counter = redCounter;}
+
+        return counter;
+    }
+
+    private boolean moveLeft(int steps){
+
+        int pos = harpune.GetPosHorizontal() + steps;
+        if (pos > harpune.MaxPos){ return false;}
+
+        harpune.MoveLeft(pos
+        );
+
+        return true;
+    }
+
+    public void Stop(){
+        bScanning = false;
     }
 
 }

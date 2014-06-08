@@ -15,5 +15,7 @@ public interface GUIListener {
     void stopFilterPicker();
     void startManualAim();
     void stopManualAim();
+    void startAutoAim();
+    void stopAutoAim();
     void save();
 }

@@ -32,7 +32,10 @@ public class RobotController implements GUIListener {
     private Scanner scanner;
     private Aimbot aimbot;
 
-    private Command command;
+    private static Command command;
+    private static short comAdr;
+    private static String comFunc = "";
+
     private Tower tower;
     private Harpune harpune;
     private Funnel funnel;
@@ -42,22 +45,26 @@ public class RobotController implements GUIListener {
     public static boolean Close = false;
     public static short CamPort = 0;
 
+    static {
+        RobotController.comAdr = Command.getComAdr();
+    }
     public RobotController() {
         instance = this;
         command = new Command();
+
         tower = new Tower(command);
         harpune = new Harpune(command);
         funnel = new Funnel(command);
         filterPicker = new FilterPicker();
-        //propertyManager = new PropertyManager();
-        //filterSet = propertyManager.getFilterSet();
-        //customFilterSet = propertyManager.getFilterSet();
+        propertyManager = new PropertyManager();
+        filterSet = propertyManager.getFilterSet();
+        customFilterSet = propertyManager.getFilterSet();
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 main = new Gui("test", instance);
-                //main.init();
+                main.init();
                 keyboard = new KeyboardAnimation(main.getPanel(), 400, tower, harpune, funnel);
                 keyboard.addAction("LEFT", EComAction.TowMoveLeft);
                 keyboard.addAction("RIGHT", EComAction.TowMoveRight );
@@ -76,10 +83,10 @@ public class RobotController implements GUIListener {
             }
         });
 
-        //init();
         //scanner.scanFromFile("PrenJava/res/vid2.m4v");
         //filterPicker.setFile("PrenJava/Res/vid2.m4v");
         //filterPicker.setColorFilter(filterSet.getColorFilter(Color.RED));
+
         while(!Close) {}
         System.exit(0);
     }
@@ -267,18 +274,21 @@ public class RobotController implements GUIListener {
         }
     }
 
-    public static void InitMotors(){
+//    public static void InitMotors(){
+//
+//        for(short i=0; i<5; i++){
+//            command.Send(Command.InitMove(i, (short) 1));
+//        }
+//    }
+
+    public static void Stop()
+    {
+        comFunc = "RobotController.Stop";
+        System.out.println(new Date().toString() + ": " + comFunc);
 
         for(short i=0; i<5; i++){
-            Command.InitMove(i, (short) 1);
+            command.Send(Command.StopMove(i, true),comAdr, comFunc);
         }
-    }
-
-    public void Stop()
-    {
-        System.out.println(new Date().toString() + ": RobotController.Stop");
-        harpune.stopHorizontalMove(true);
-        harpune.stopPullLoose(true);
     }
 
     public static void Exit(){
@@ -291,12 +301,6 @@ public class RobotController implements GUIListener {
         else{
 
         }
-    }
-
-    public void StartMoves(){
-
-        InitMotors();
-        tower.MoveRight();
     }
 
     @Override
@@ -331,6 +335,43 @@ public class RobotController implements GUIListener {
     }
 
     @Override
+    public void startAutoAim(){
+
+        scanner = new Scanner(customFilterSet, capture, harpune);
+        Thread tScanner = new Thread(scanner);
+        tScanner.start();
+
+        while(tScanner.isAlive()){
+            try {
+                Thread.sleep(8);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        aimbot = new Aimbot(capture, scanner.getMostCubeCounter(),harpune);
+        Thread tAimbot = new Thread(aimbot);
+        tAimbot.start();
+
+        while(tAimbot.isAlive()){
+            try {
+                Thread.sleep(8);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //Finish
+    }
+
+    @Override
+    public void stopAutoAim()
+    {
+        scanner.Stop();
+        aimbot.Stop = true;
+    }
+
+    @Override
     public void save() {
         propertyManager.saveFilterSet(customFilterSet);
         filterSet = propertyManager.getFilterSet();
@@ -338,7 +379,6 @@ public class RobotController implements GUIListener {
 
     public void start() {
         // 1. init Parameter
-        init();
         // 1. Tower in Position
         tower.MoveRight();
         // 2. Scanner
@@ -350,9 +390,5 @@ public class RobotController implements GUIListener {
         funnel.Open();
         // 5. Tower back to Start
         tower.MoveLeft();
-    }
-
-    private void init() {
-        scanner = new Scanner(filterSet, capture, harpune);
     }
 }

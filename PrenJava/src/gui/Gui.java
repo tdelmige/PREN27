@@ -124,12 +124,20 @@ public class Gui extends JComponent {
         listener.stopManualAim();
     }
 
+    public void startAutoAim() { listener.startAutoAim();}
+
+    public void stopAutoAim() { listener.stopAutoAim();}
+
     public void fireSetCrosshairOffset(int offset) {
         listener.setCrosshairOffset(offset);
     }
 
     public void fireSetCrosshairSize(Size size) {
         listener.setCrosshairSize(size);
+    }
+
+    public void fireSave() {
+        listener.save();
     }
 }
 

@@ -19,8 +19,11 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
     private CubeCounter counter;
     private TargetZone targetzone;
     private Harpune harpune;
+    private int moveTo;
 
     private boolean waitflag =false;
+    public boolean Stop = false;
+
 
 
     public Aimbot(VideoCapture capture, CubeCounter counter, Harpune harpune){
@@ -49,32 +52,40 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
 
         if (capture.isOpened())
         {
-            capture.read(input);
-            if (!input.empty())
+            while(!Stop)
             {
-                Imgproc.cvtColor(input, output, Imgproc.COLOR_BGR2HSV);
+                capture.read(input);
+                if (!input.empty())
+                {
+                    Imgproc.cvtColor(input, output, Imgproc.COLOR_BGR2HSV);
 
-                List<Cube> cubes = counter.getCubes(output);
-                try {
-                    Cube cube = getNextCube(cubes);
-                    if (moveToCube(cube, output)){
-                        //Todo: Wait for StopSignal && timeout falls kein signal
+                    List<Cube> cubes = counter.getCubes(output);
+                    try {
+                        Cube cube = getNextCube(cubes);
 
-                        waitForAnswer(30000);
+                        if (cube != null){
+                            if (moveToCube(cube, output)){
+                                //Todo: Wait for StopSignal && timeout falls kein signal
 
-                        harpune.Fire();
+                                //Harpune wartet in den Move Befehlen
+                                //waitForAnswer(30000);
 
-                        //Todo: getroffen?
+                                harpune.Fire();
 
-                        // Todo: Überwachungs das Cube auch gezogen wird!
-                        harpune.Pull();
-                        Thread.sleep(4000);
+                                //Todo: getroffen?
+
+                                // Todo: Überwachungs das Cube auch gezogen wird!
+                                harpune.Pull();
+                                Thread.sleep(4000);
+                            }
+                        }
+
+                        else{ moveRight(500000); }
+
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
                 }
-
             }
         }
     }
@@ -107,26 +118,6 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
         return cube;
     }
 
-    private void moveToCube(Point dist) {
-        short x = transposeToSteps(dist.x);
-        short y = transposeToSteps(dist.y);
-        if (dist.x > 0) {
-            harpune.MoveLeft(x);
-        } else if (dist.x == 0) {
-            dist.x = dist.x * -1;
-            harpune.MoveRight(x);
-        }
-        if (dist.y > 0) {
-            harpune.MoveUp(y);
-        } else if (dist.y < 0) {
-            harpune.MoveDown(y);
-        }
-    }
-
-    private short transposeToSteps(double pixel) {
-        return (short)(pixel * 1);
-    }
-
     private boolean moveToCube(Cube cube, Mat frame){
 
         double width = frame.size().width;
@@ -156,7 +147,7 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
 
         if (x == 0 && y == 0){
 
-            System.out.println(new Date().toString() + ": Aimbot.moveToCube: already in Center");
+            System.out.println(new Date().toString() + " Aimbot.moveToCube: already in Center");
             return true;
         }
 
@@ -173,18 +164,14 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
         }
     }
 
-    private void waitForAnswer(int timeout){
-        waitflag = true;
+    private boolean moveRight(int steps){
 
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                waitflag = false;
-            }
-        }, timeout);
+        moveTo = harpune.GetPosHorizontal() + steps;
+        if (moveTo > harpune.MaxPos){ return false;}
 
-        while(waitflag == true){}
+        harpune.MoveRight(moveTo);
+
+        return true;
     }
 
 

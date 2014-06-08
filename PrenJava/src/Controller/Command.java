@@ -3,7 +3,7 @@ package Controller;
 import Common.IMessage;
 import Common.IObserver;
 
-import java.nio.ByteBuffer;
+import java.util.Date;
 
 public class Command implements IObserver<IMessage>{
 	
@@ -33,28 +33,31 @@ public class Command implements IObserver<IMessage>{
 	private short comAdr;
 	
 	static 
-	{		
-		ComPort.PortNr = "COM5";
+	{
+		ComPort.PortNr = "COM6";
 		com = new ComPort();
 		
 	}
 	
 	public Command(){
-		comAdr = ++adr;
+		//comAdr = ++adr;
 		com.addObserver(this);
 	}
 
     public static ComPort getComPortInst() {return com;}
+	public static short getComAdr() {return ++adr;}
 	
-	
-	public void Send(byte[] cmd)
+	public void Send(byte[] cmd, short comAdr, String func)
 	{
-
-		//�ber event l�sen = answer auswerten
-		while(!com.Write(cmd, comAdr))
+		while(!com.Write(cmd, comAdr, func))
 		{
-			//String exception = com.LastResponse();
-		}
+            try {
+                Thread.sleep(8);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
 	}
 	
 //	private static String Answer(){
@@ -67,30 +70,26 @@ public class Command implements IObserver<IMessage>{
 		cmd[0] = InitMove;
 		cmd[1] = (byte) motor;
 		cmd[2] = (byte) dir;
-		
 
-		
 		return cmd;
 	}
 	
 	public static byte[] MoveTo(short motor, short dir, int pos, short speed, short acc, short dec){
 
-        byte[] bytes = ByteBuffer.allocate(4).putInt(pos).array();
+        byte[] bytes = intToByteArray3(pos);
+
+        //System.out.println(new Date().toString() + "Command.MoveTo : Converted int: " + byteArrayToInt(bytes));
 
 		byte[] cmd = new byte[byteLength];
 		cmd[0] = MoveTo;
 		cmd[1] = (byte) motor;
 		cmd[2] = (byte) dir;
-		cmd[3] = bytes[1];
-		cmd[4] = bytes[2];
-		cmd[5] = bytes[3];
+		cmd[3] = bytes[0];
+		cmd[4] = bytes[1];
+		cmd[5] = bytes[2];
 		cmd[6] = (byte) speed;
 		cmd[7] = (byte) acc;
 		cmd[8] = (byte) dec;
-
-        for (byte b : cmd) {
-            System.out.format("%x ", b);
-        }
 
 		return cmd;
 	}
@@ -126,10 +125,7 @@ public class Command implements IObserver<IMessage>{
 		cmd[3] = (byte) speed;
 		cmd[4] = (byte) acc;
 		cmd[5] = (byte) dec;
-		for (byte b : cmd) {
-            System.out.print(b + " ");
-        }
-        System.out.println();
+
 		return cmd;
 	}
 	 
@@ -139,11 +135,6 @@ public class Command implements IObserver<IMessage>{
 		cmd[0] = StopMove;
 		cmd[1] = (byte) motor;
 		cmd[2] = (byte) (hardstop ? 1 : 0);
-
-        for (byte b : cmd) {
-            System.out.print(b + " ");
-        }
-        System.out.println();
 		
 		return cmd;
 	}
@@ -249,10 +240,30 @@ public class Command implements IObserver<IMessage>{
                 //Fehler
                 else {
                     String msg = arg.getMessage();
-                    System.out.println(msg);
+                    System.out.println(new Date().toString() + " Command.Update: " +msg);
                 }
             }
         }
 	}
+
+    public static byte[] intToByteArray3(int a)
+    {
+        byte[] ret = new byte[3];
+        ret[2] = (byte) (a & 0xFF);
+        ret[1] = (byte) ((a >> 8) & 0xFF);
+        ret[0] = (byte) ((a >> 16) & 0xFF);
+
+        return ret;
+    }
+
+    public static int byteArrayToInt(byte[] b)
+    {
+        int value = 0;
+        for (int i = 0; i < 3; i++) {
+            int shift = (2 - i) * 8;
+            value += (b[i] & 0x000000FF) << shift;
+        }
+        return value;
+    }
 
 }
