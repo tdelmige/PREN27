@@ -118,26 +118,6 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
         return cube;
     }
 
-    private void moveToCube(Point dist) {
-        short x = transposeToSteps(dist.x);
-        short y = transposeToSteps(dist.y);
-        if (dist.x > 0) {
-            harpune.MoveLeft(x);
-        } else if (dist.x == 0) {
-            dist.x = dist.x * -1;
-            harpune.MoveRight(x);
-        }
-        if (dist.y > 0) {
-            harpune.MoveUp(y);
-        } else if (dist.y < 0) {
-            harpune.MoveDown(y);
-        }
-    }
-
-    private short transposeToSteps(double pixel) {
-        return (short)(pixel * 1);
-    }
-
     private boolean moveToCube(Cube cube, Mat frame){
 
         double width = frame.size().width;

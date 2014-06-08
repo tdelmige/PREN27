@@ -42,14 +42,13 @@ public class Scanner implements Runnable {
     public Scanner(FilterSet filterSet, VideoCapture capture, Harpune harpune) {
         this.capture = capture;
         this.harpune = harpune;
-        this.imShow = new ImShow("Test");
-        greenCounter = new CubeCounter(filterSet.getColorFilter(Color.GREEN), 400);
+        greenCounter = new CubeCounter(filterSet.getColorFilter(Color.GREEN));
         greenCounter.setTargetZone(targetZone);
-        redCounter = new CubeCounter(filterSet.getColorFilter(Color.RED), 400);
+        redCounter = new CubeCounter(filterSet.getColorFilter(Color.RED));
         redCounter.setTargetZone(targetZone);
-        blueCounter = new CubeCounter(filterSet.getColorFilter(Color.BLUE), 400);
+        blueCounter = new CubeCounter(filterSet.getColorFilter(Color.BLUE));
         blueCounter.setTargetZone(targetZone);
-        yellowCounter = new CubeCounter(filterSet.getColorFilter(Color.YELLOW), 400);
+        yellowCounter = new CubeCounter(filterSet.getColorFilter(Color.YELLOW));
         yellowCounter.setTargetZone(targetZone);
     }
 
@@ -63,13 +62,13 @@ public class Scanner implements Runnable {
             }
         });
         t.start();
-
+        /*
         try {
             Thread.sleep(scanTime);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
+        */
         while(moveLeft(scanSteps))
         {
             try {

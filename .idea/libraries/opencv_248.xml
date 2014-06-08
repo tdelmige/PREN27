@@ -4,8 +4,6 @@
       <root url="jar://$PROJECT_DIR$/PrenJava/res/OpenCV/opencv-248.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES>
-      <root url="jar://$PROJECT_DIR$/PrenJava/res/OpenCV/opencv-248.jar!/" />
-    </SOURCES>
+    <SOURCES />
   </library>
 </component>
