@@ -18,7 +18,7 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
 	public static String PortNr;
 	public static final short LengthResponse = 4;
 	private Timer timer;	
-	private static short timeout = 50;
+	private static short timeout = 1000;
 	private boolean lock = false;
 	private short comAdr;
     private byte[] lastMessage;
@@ -40,7 +40,9 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
 				
 			}
 		});
-		
+        timer.setRepeats(false);
+        timer.stop();
+
 	}
 	
 	public void Init(String portNumber){
@@ -53,8 +55,8 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
                                  SerialPort.STOPBITS_1,
                                  SerialPort.PARITY_NONE);//Set params. Also you can set params by this string: serialPort.setParams(9600, 8, 1, 0);
 
-            int mask = SerialPort.MASK_RXCHAR + SerialPort.MASK_CTS + SerialPort.MASK_DSR;//Prepare mask
-            port.setEventsMask(mask);//Set mask
+            //int mask = SerialPort.MASK_RXCHAR + SerialPort.MASK_CTS + SerialPort.MASK_DSR;//Prepare mask
+            //port.setEventsMask(mask);//Set mask
             port.addEventListener(this);//Add SerialPortEventListener
 
         }
@@ -117,7 +119,6 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
                 //Read data, if 10 bytes available 
                 try {
                     //byte[] buffer = port.readBytes(LengthResponse);
-
                     byte[] buffer = null;
                     buffer = port.readBytes();
                     System.out.println(new Date().toString() + " Comport : Received = " +  Arrays.toString(buffer));
@@ -126,7 +127,7 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
                     byte[] payload = Arrays.copyOfRange(buffer, 1, buffer.length);
                     byte chk = 0;
 
-                    if (ack == 1)
+                    if (ack == 1 && buffer.length == LengthResponse)
                     {
                         this.lock = false;
                         IResponse res = new ResponseImpl(ack,payload,chk);
@@ -141,7 +142,7 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
                         SendAgain();
                     }
                 }
-                catch (SerialPortException ex) {
+                catch (Exception ex) {
                     System.out.println(new Date().toString() + " ComPort.serialEvent: "+ ex);
                 }
             //}

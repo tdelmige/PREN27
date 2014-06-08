@@ -241,7 +241,8 @@ public class Scanner implements Runnable {
         int pos = harpune.GetPosHorizontal() + steps;
         if (pos > harpune.MaxPos){ return false;}
 
-        harpune.MoveLeft(pos);
+        harpune.MoveLeft(pos
+        );
 
         return true;
     }
