@@ -81,7 +81,7 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
                             }
                         }
 
-                        else{ moveRight(500000); }
+                        else{ moveRight(20000); }
 
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -168,7 +168,7 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
     private boolean moveRight(int steps){
 
         moveTo = harpune.GetPosHorizontal() + steps;
-        if (moveTo > harpune.MaxPos){ return false;}
+        if (moveTo > 0){ return false;}
 
         harpune.MoveRight(moveTo);
 

@@ -34,7 +34,7 @@ public class CubeFinder {
     private ArrayList<Cube> Cubes = null;
     
     public CubeFinder() {
-    	this.minArea = 1000;
+    	this.minArea = 250;
     	this.kSize = new Size(3,3);
     	this.sigmaX = 1;
     	this.maxValue = 100;
@@ -168,7 +168,7 @@ public class CubeFinder {
         for(MatOfPoint Contour : Contours) {
             double Area = Imgproc.contourArea(Contour);
             
-            if (Area > minArea && Area < 5000) {
+            if (Area > minArea && Area < 2*minArea) {
                 Cube newCube = new Cube();
                 
                 // get Center

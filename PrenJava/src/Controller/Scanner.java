@@ -1,5 +1,6 @@
 package Controller;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
@@ -8,9 +9,11 @@ import Common.Color;
 import ImageProcessing.*;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
+import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
+import javax.swing.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -18,7 +21,7 @@ public class Scanner implements Runnable {
 
     private boolean bScanning = false;
     private int scanTime = 10000;
-    private int scanSteps = 4000000;
+    private int scanSteps = 96200;
 
     private FilterSet filterSet;
     private TargetZone targetZone;
@@ -42,6 +45,7 @@ public class Scanner implements Runnable {
     public Scanner(FilterSet filterSet, VideoCapture capture, Harpune harpune) {
         this.capture = capture;
         this.harpune = harpune;
+        imShow = new ImShow("Scanner");
         greenCounter = new CubeCounter(filterSet.getColorFilter(Color.GREEN));
         greenCounter.setTargetZone(targetZone);
         redCounter = new CubeCounter(filterSet.getColorFilter(Color.RED));
@@ -73,21 +77,22 @@ public class Scanner implements Runnable {
             e.printStackTrace();
         }
         */
-        while(moveLeft(scanSteps))
+/*        while(moveLeft(scanSteps))
         {
             try {
                 Thread.sleep(scanTime);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
-
-        System.out.println(new Date().toString() + " Scanner.run: " + getCounts());
+        }*/
+        moveLeft(scanSteps);
         bScanning = false;
+        System.out.println(new Date().toString() + " Scanner.run: " + getCounts());
     }
 
     public void scan() {
 
+        int count = 0;
         bScanning = true;
         input = new Mat();
         output = new Mat();
@@ -98,12 +103,11 @@ public class Scanner implements Runnable {
         worker4 = blueCounter;
 
         System.out.println(new Date().toString() + "Scanner.scan: Start Scanning...");
-        capture = new VideoCapture(0);
+
         while (bScanning) {
             if (capture.isOpened()) {
                 capture.read(input);
                 if (!input.empty()) {
-
                     Imgproc.cvtColor(input, output, Imgproc.COLOR_BGR2HSV);
 
                     Mat imgGreen = output.clone();
@@ -125,16 +129,20 @@ public class Scanner implements Runnable {
 
                     while (!workerPool.isTerminated()) {
                     }
-                    input = greenCounter.draw(input);
                     imShow.showImage(input);
+                    //yellowCounter.draw(input);
+                    //Highgui.imwrite("picture" + count++ + ".jpg",input);
                     imgBlue.release();
                     imgGreen.release();
                     imgRed.release();
                     imgYellow.release();
                     input.release();
                     output.release();
+                } else {
+                    System.out.println("kein bild");
                 }
-
+            } else {
+                System.out.println("kein capture");
             }
         }
         System.out.println(new Date().toString() +"Scanner.scan: Stop Scanning.");
@@ -194,7 +202,7 @@ public class Scanner implements Runnable {
 
                     while (!workerPool.isTerminated()) {
                     }
-                    input = blueCounter.draw(input);
+                    //input = blueCounter.draw(input);
                     imShow.showImage(input);
                     imgBlue.release();
                     imgGreen.release();
