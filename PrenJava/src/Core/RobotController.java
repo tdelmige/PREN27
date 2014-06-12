@@ -56,9 +56,9 @@ public class RobotController implements GUIListener {
 
         capture = new VideoCapture(CamPort);
         if (capture.isOpened()) {
-            System.out.println("Cam initialisiert");
+            log.info("Cam initialisiert");
         } else {
-            System.out.println("Cam nicht initialisiert");
+            log.info("Cam nicht initialisiert");
         }
 
         instance = this;
@@ -351,7 +351,7 @@ public class RobotController implements GUIListener {
     @Override
     public void startAutoAim(){
 
-        scanner = new Scanner(customFilterSet, capture, CamPort, harpune);
+        scanner = new Scanner(customFilterSet, capture, harpune);
         Thread tScanner = new Thread(scanner);
         tScanner.start();
 
