@@ -1,5 +1,8 @@
 package Common;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.nio.ByteBuffer;
 import java.util.Date;
 
@@ -14,6 +17,8 @@ public class MessageImpl implements IMessage {
 	private Short comAdr;
     private String function;
     private Boolean checked = false;
+
+    private static Logger log = LogManager.getLogger(MessageImpl.class.getName());
 	
 	public MessageImpl(String mes, IResponse res, Exception exc, Short adr, String function){
 		this.message = mes;
@@ -33,8 +38,7 @@ public class MessageImpl implements IMessage {
         }
         catch (Exception ex)
         {
-            System.out.println(new Date().toString() + " Commmand.MessageImpl: "+ ex.getMessage());
-            ex.printStackTrace();
+            log.error(ex.getMessage());
         }
 
 	}

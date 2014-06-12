@@ -3,10 +3,11 @@ package Controller;
 import Common.IMessage;
 import Common.IObserver;
 import Common.IResponse;
-
 import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.Timer;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public class Harpune implements IObserver<IMessage> {
 
@@ -51,6 +52,7 @@ public class Harpune implements IObserver<IMessage> {
 
     public final int MaxPos = 4194303;
 
+    private static Logger log = LogManager.getLogger(Harpune.class.getName());
 
 	public Harpune(Command com) {
 		this.com = com;
@@ -64,7 +66,7 @@ public class Harpune implements IObserver<IMessage> {
 	public void Fire()
 	{
         comFunc = "Harpune.Fire";
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
 		Command.SetPin((short) 1, true);
 		try 
 		{
@@ -79,25 +81,25 @@ public class Harpune implements IObserver<IMessage> {
     // ebenfalls close bei Funnel
 	public void Pull() {
         comFunc = "Harpune.Pull";
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.MoveTo(JIG, UP, JIG_MIN, speedPull, accPull, decPull), comAdr, comFunc);
     }
 
     public void Loose() {
         comFunc = "Harpune.Loose";
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.MoveTo(JIG, DOWN, JIG_MAX, speedLoose, accLoose, decLoose), comAdr, comFunc);
     }
 
     public void stopPullLoose(boolean hardStop) {
         comFunc = "Harpune.stopPullLoose";
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.StopMove(JIG, hardStop), comAdr, comFunc);
     }
 
     public void MoveLeft(){
         comFunc = "Harpune.MoveLeft";
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.Move(HORIZONTAL, LEFT, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
@@ -107,14 +109,14 @@ public class Harpune implements IObserver<IMessage> {
         pos &= 0x3FFFFF;
 
         comFunc = "Harpune.MoveLeft to: " +pos;
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.MoveTo(HORIZONTAL, LEFT, pos, speedHarpune, acc, dec), comAdr, comFunc);
         waitMove(HORIZONTAL);
     }
 
     public void MoveRight(){
         comFunc = "Harpune.MoveRigh";
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.Move(HORIZONTAL, RIGHT, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
@@ -124,33 +126,33 @@ public class Harpune implements IObserver<IMessage> {
         pos &= 0x3FFFFF;
 
         comFunc = "Harpune.MoveRight to: " +pos;
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.MoveTo(HORIZONTAL, RIGHT, pos, speedHarpune, acc, dec), comAdr, comFunc);
         waitMove(HORIZONTAL);
     }
 
     public void MoveAroundLeft(){
         comFunc = "Harpune.MoveAroundLeft";
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.Move(HORIZONTAL, LEFT, speedHarpune, acc, dec), comAdr, comFunc);
 
     }
 
     public void MoveAroundRight(){
         comFunc = "Harpune.MoveAroundRight";
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.Move(HORIZONTAL, RIGHT, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
     public void stopHorizontalMove(boolean hardStop) {
         comFunc = "Harpune.StopHorizontalMove";
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.StopMove(HORIZONTAL, hardStop), comAdr, comFunc);
     }
 
     public void MoveUp(){
         comFunc = "Harpune.MoveUp";
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.Move(VERTICAL, UP, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
@@ -160,14 +162,14 @@ public class Harpune implements IObserver<IMessage> {
         pos &= 0x3FFFFF;
 
         comFunc = "Harpune.MoveUp, to:" +pos;
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.MoveTo(VERTICAL, UP, pos, speedHarpune, acc, dec), comAdr, comFunc);
         waitMove(VERTICAL);
     }
 
     public void MoveDown(){
         comFunc = "Harpune.MoveDown";
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.Move(VERTICAL, DOWN, speedHarpune, acc, dec), comAdr, comFunc);
     }
 
@@ -177,27 +179,27 @@ public class Harpune implements IObserver<IMessage> {
         pos &= 0x3FFFFF;
 
         comFunc = "Harpune.MoveDown, to:" +pos;
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.MoveTo(VERTICAL, DOWN, pos, speedHarpune, acc, dec), comAdr, comFunc);
         waitMove(VERTICAL);
     }
 
     public void StopVerticalMove(boolean hardStop) {
         comFunc = "Harpune.StopVerticalMove";
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.StopMove(VERTICAL, hardStop), comAdr, comFunc);
     }
 
     public int GetPosHorizontal(){
         comFunc = "Harpune.GetPosHorizontal";
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.GetAbsPos(HORIZONTAL), comAdr, comFunc);
 
         while (received == false){
             try {
                 Thread.sleep(20);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
             }
         }
         received = false;
@@ -205,7 +207,7 @@ public class Harpune implements IObserver<IMessage> {
         while(response != null && response.getChecked() == false){
 
             int payload = response.getPayload();
-            System.out.println(new Date().toString() + "Harpune.GetPosHorizontal Response: " + payload);
+            log.info("Response: " + payload);
             response.setChecked(true);
 
             if (payload >= 0 || payload <= 4194303)
@@ -219,14 +221,14 @@ public class Harpune implements IObserver<IMessage> {
 
     public int GetPosVertical() {
         comFunc = "Harpune.GetPosVertical";
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.GetAbsPos(VERTICAL), comAdr, comFunc);
 
         while (received == false ){
             try {
                 Thread.sleep(20);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
             }
         }
         received = false;
@@ -234,7 +236,7 @@ public class Harpune implements IObserver<IMessage> {
         while(response != null && response.getChecked() == false){
 
             int payload = response.getPayload();
-            System.out.println(new Date().toString() + "Harpune.GetPosVertical Response: " + payload);
+            log.info("Response: " + payload);
             response.setChecked(true);
 
             if (payload >= 0 || payload <= 4194303)
@@ -248,13 +250,14 @@ public class Harpune implements IObserver<IMessage> {
 
     private void waitMove(short motor){
         comFunc = "Harpune.WaitMoved";
+        log.info(comFunc);
         com.Send(Command.WaitMoved(motor, (short)0), comAdr, comFunc);
 
         while (received == false){
             try {
                 Thread.sleep(20);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
             }
         }
         received = false;

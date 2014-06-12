@@ -11,12 +11,16 @@ import javax.imageio.ImageIO;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.highgui.Highgui;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  *
  * @author raffaelsteinmann
  */
 public class Converter {
+
+    private static Logger log = LogManager.getLogger(Converter.class.getName());
     
     public static BufferedImage MatToBufferedImage(Mat image) {
         
@@ -31,8 +35,8 @@ public class Converter {
             InputStream in = new ByteArrayInputStream(byteArray);
             bufImage = ImageIO.read(in);
             
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            log.error(ex.getMessage());
         }
         matOfByte.release();
         return bufImage;

@@ -4,12 +4,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Stack;
-
 import javax.swing.Timer;
-
 import Common.*;
 import jssc.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ComPort extends Observable<IMessage> implements SerialPortEventListener {
 	
@@ -23,11 +22,13 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
 	private short comAdr;
     private byte[] lastMessage;
     private String comFunc;
+
+    private static Logger log = LogManager.getLogger(ComPort.class.getName());
 	
 	public ComPort(){
         ports = SerialPortList.getPortNames();
         for(int i = 0; i < ports.length; i++){
-            System.out.println(new Date().toString() + " ComPort.ComPort: "+ ports[i]);
+            log.info(" Ports: "+ ports[i]);
         }
 
 		Init(PortNr);
@@ -61,7 +62,8 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
 
         }
         catch (SerialPortException ex) {
-            System.out.println(new Date().toString() + " ComPort.Init: "+ ex);
+            log.error(ex.getMessage());
+
         }
 
 	}
@@ -72,7 +74,7 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
 
         }
         catch (SerialPortException ex) {
-            System.out.println(new Date().toString() + " ComPort.Read: "+ ex);
+            log.error(ex.getMessage());
         }
         
         return null;
@@ -85,14 +87,14 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
 	        try {
 	        	comAdr = adr;
                 comFunc = func;
-                System.out.println(new Date().toString() + " ComPort.Write Send: " + Arrays.toString(msg));
+                log.info("Send: " + Arrays.toString(msg));
 	        	port.writeBytes(msg);//Write data to port
 	        	this.lock = true;
 	        	timer.start();
 	
 	        }
 	        catch (SerialPortException ex) {
-                System.out.println(new Date().toString() + " ComPort.Write: "+ ex);
+                log.error(ex.getMessage());
 	        }
 	        return true;
         }
@@ -108,7 +110,7 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
         	port.closePort();//Close serial port
         }
         catch (SerialPortException ex) {
-            System.out.println(new Date().toString() + " ComPort.ClosePort: "+ ex);
+            log.error(ex.getMessage());
         }
 	}
 
@@ -121,7 +123,7 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
                     //byte[] buffer = port.readBytes(LengthResponse);
                     byte[] buffer = null;
                     buffer = port.readBytes();
-                    System.out.println(new Date().toString() + " Comport : Received = " +  Arrays.toString(buffer));
+                    log.info(" Received = " +  Arrays.toString(buffer));
 
                     byte ack = buffer[0];
                     byte[] payload = Arrays.copyOfRange(buffer, 1, buffer.length);
@@ -133,7 +135,7 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
                         IResponse res = new ResponseImpl(ack,payload,chk);
                         IMessage msg = new MessageImpl(null, res , null, comAdr, comFunc);
 
-                        System.out.println(new Date().toString() + " Comport: Received = ack: " +  res.getAck() + " payload: " + Arrays.toString(res.getPayload()) + " intPayload: "  + msg.getPayload() + " :: comAdr: " + comAdr + " Func: " + comFunc );
+                        log.info("Received = ack: " +  res.getAck() + " payload: " + Arrays.toString(res.getPayload()) + " intPayload: "  + msg.getPayload() + " :: comAdr: " + comAdr + " Func: " + comFunc );
                         super.notifyObservers(msg);
                     }
                     // Im Fehlerfahl nochmals senden
@@ -143,24 +145,24 @@ public class ComPort extends Observable<IMessage> implements SerialPortEventList
                     }
                 }
                 catch (Exception ex) {
-                    System.out.println(new Date().toString() + " ComPort.serialEvent: "+ ex);
+                    log.error(ex.getMessage());
                 }
             //}
         }
         else if(event.isCTS()){//If CTS line has changed state
             if(event.getEventValue() == 1){//If line is ON
-                System.out.println(new Date().toString() +"ComPort.serialEvent: CTS - ON");
+                log.info("CTS - ON");
             }
             else {
-                System.out.println(new Date().toString() +"ComPort.serialEvent: CTS - OFF");
+                log.info("CTS - OFF");
             }
         }
         else if(event.isDSR()){///If DSR line has changed state
             if(event.getEventValue() == 1){//If line is ON
-                System.out.println(new Date().toString() +"ComPort.serialEvent: DSR - ON");
+                log.info("DSR - ON");
             }
             else {
-                System.out.println(new Date().toString() +"ComPort.serialEvent: DSR - OFF");
+                log.info("DSR - OFF");
             }
         }
 	}

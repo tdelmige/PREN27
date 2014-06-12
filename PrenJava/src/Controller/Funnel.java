@@ -1,6 +1,8 @@
 package Controller;
 
 import java.util.Date;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public class Funnel {
 	
@@ -9,7 +11,8 @@ public class Funnel {
     private short delay = 2000;
     private String comFunc = "";
 
-	
+    private static Logger log = LogManager.getLogger(Funnel.class.getName());
+
 	public Funnel(Command com) {
 		this.com = com;
         this.comAdr = Command.getComAdr();
@@ -20,13 +23,13 @@ public class Funnel {
 	
 	public void Open(){
         comFunc = "Funnel.Open";
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.DCMove((short)0, 0, 120, true),comAdr, comFunc);
     }
 
     public void Close(){
         comFunc = "Funnel.Close";
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
         com.Send(Command.DCMove((short)1, 0, 120, true),comAdr, comFunc);
     }
 

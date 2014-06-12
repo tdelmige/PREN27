@@ -3,6 +3,8 @@ package Controller;
 import Common.IMessage;
 import Common.IObserver;
 import ImageProcessing.*;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Size;
@@ -10,6 +12,7 @@ import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.*;
+
 
 public class Aimbot implements Runnable, IObserver<IMessage> {
 
@@ -24,7 +27,7 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
     private boolean waitflag =false;
     public boolean Stop = false;
 
-
+    private static Logger log = LogManager.getLogger(Aimbot.class.getName());
 
     public Aimbot(VideoCapture capture, CubeCounter counter, Harpune harpune){
         this.capture = capture;
@@ -84,7 +87,7 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
                         else{ moveRight(500000); }
 
                     } catch (Exception ex) {
-                        ex.printStackTrace();
+                        log.error(ex.getMessage());
                     }
                 }
             }
@@ -148,7 +151,7 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
 
         if (x == 0 && y == 0){
 
-            System.out.println(new Date().toString() + " Aimbot.moveToCube: already in Center");
+            log.info("Already in Center");
             return true;
         }
 

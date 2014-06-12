@@ -13,10 +13,11 @@ import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
-
 import javax.swing.*;
 import javax.swing.text.AsyncBoxView;
 import java.util.Date;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public class RobotController implements GUIListener {
 
@@ -39,11 +40,12 @@ public class RobotController implements GUIListener {
     private Tower tower;
     private Harpune harpune;
     private Funnel funnel;
-
     private Crosshair crosshair;
 
+    private static Logger log = LogManager.getLogger(RobotController.class.getName());
+
     public static boolean Close = false;
-    public static short CamPort = 0;
+    public static short CamPort = -1;
 
     static {
         RobotController.comAdr = Command.getComAdr();
@@ -142,7 +144,7 @@ public class RobotController implements GUIListener {
         public void live() {
             bRun = true;
             try {
-                capture = new VideoCapture(0);
+                capture = new VideoCapture(CamPort);
                 input = new Mat();
                 output = new Mat();
                 while(bRun) {
@@ -166,8 +168,8 @@ public class RobotController implements GUIListener {
                         }
                     }
                 }
-            } catch (Exception e) {
-                System.out.println(e.getLocalizedMessage());
+            } catch (Exception ex) {
+                log.error(ex.getMessage());
             }
         }
 
@@ -202,8 +204,8 @@ public class RobotController implements GUIListener {
                         capture.open(file);
                     }
                 }
-            } catch (Exception e) {
-                System.out.println(e.getLocalizedMessage());
+            } catch (Exception ex) {
+                log.error(ex.getMessage());
             }
         }
     }
@@ -268,8 +270,8 @@ public class RobotController implements GUIListener {
                     }
                 }
 
-            } catch (Exception e) {
-                System.out.println(e.getLocalizedMessage());
+            } catch (Exception ex) {
+                log.error(ex.getMessage());
             }
         }
     }
@@ -284,7 +286,7 @@ public class RobotController implements GUIListener {
     public static void Stop()
     {
         comFunc = "RobotController.Stop";
-        System.out.println(new Date().toString() + ": " + comFunc);
+        log.info(comFunc);
 
         for(short i=0; i<5; i++){
             command.Send(Command.StopMove(i, true),comAdr, comFunc);
@@ -293,7 +295,7 @@ public class RobotController implements GUIListener {
 
     public static void Exit(){
 
-        System.out.println(new Date().toString() + ": RobotController.Exit");
+        log.info("Close");
         int q = JOptionPane.showConfirmDialog(null, "Anwendung schliessen?", "Exit", JOptionPane.YES_NO_OPTION);
 
         if (q == 0){
@@ -337,15 +339,15 @@ public class RobotController implements GUIListener {
     @Override
     public void startAutoAim(){
 
-        scanner = new Scanner(customFilterSet, capture, harpune);
+        scanner = new Scanner(customFilterSet, capture, CamPort, harpune);
         Thread tScanner = new Thread(scanner);
         tScanner.start();
 
         while(tScanner.isAlive()){
             try {
                 Thread.sleep(8);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
             }
         }
 
@@ -356,8 +358,8 @@ public class RobotController implements GUIListener {
         while(tAimbot.isAlive()){
             try {
                 Thread.sleep(8);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
             }
         }
 

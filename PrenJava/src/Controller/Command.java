@@ -2,7 +2,8 @@ package Controller;
 
 import Common.IMessage;
 import Common.IObserver;
-
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import java.util.Date;
 
 public class Command implements IObserver<IMessage>{
@@ -31,6 +32,8 @@ public class Command implements IObserver<IMessage>{
 	
 	private IMessage lastRespone; 
 	private short comAdr;
+
+    private static Logger log = LogManager.getLogger(Command.class.getName());
 	
 	static 
 	{
@@ -53,8 +56,8 @@ public class Command implements IObserver<IMessage>{
 		{
             try {
                 Thread.sleep(8);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
             }
         }
 
@@ -78,9 +81,7 @@ public class Command implements IObserver<IMessage>{
 
         byte[] bytes = intToByteArray3(pos);
 
-        //System.out.println(new Date().toString() + "Command.MoveTo : Converted int: " + byteArrayToInt(bytes));
-
-		byte[] cmd = new byte[byteLength];
+       	byte[] cmd = new byte[byteLength];
 		cmd[0] = MoveTo;
 		cmd[1] = (byte) motor;
 		cmd[2] = (byte) dir;
@@ -240,7 +241,7 @@ public class Command implements IObserver<IMessage>{
                 //Fehler
                 else {
                     String msg = arg.getMessage();
-                    System.out.println(new Date().toString() + " Command.Update: " +msg);
+                    log.error(msg);
                 }
             }
         }

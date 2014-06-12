@@ -2,11 +2,11 @@ package ImageProcessing;
 
 import Common.Color;
 import org.opencv.core.Scalar;
-
 import java.io.*;
 import java.util.Properties;
-
 import static ImageProcessing.ColorFilter.*;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * Created by raffaelsteinmann on 13.05.14.
@@ -14,24 +14,23 @@ import static ImageProcessing.ColorFilter.*;
 public class PropertyManager {
 
     private final String FILE = "PrenJava/res/config.properties";
-
     private Properties config;
-
+    private static Logger log = LogManager.getLogger(PropertyManager.class.getName());
 
     public PropertyManager() {
         config = new Properties();
         try {
             config.load(new FileInputStream(FILE));
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            log.error(ex.getMessage());
         }
     }
 
     private void save(){
         try {
             config.store(new FileOutputStream(FILE), null);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            log.error(ex.getMessage());
         }
     }
 

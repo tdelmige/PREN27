@@ -14,6 +14,10 @@ import org.opencv.imgproc.Imgproc;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
+
 public class Scanner implements Runnable {
 
     private boolean bScanning = false;
@@ -29,6 +33,7 @@ public class Scanner implements Runnable {
 
     private Harpune harpune;
     private VideoCapture capture;
+    private int camPort;
     private Mat input, output;
     private ImShow imShow;
 
@@ -38,9 +43,11 @@ public class Scanner implements Runnable {
     Runnable worker4;
 
     private ExecutorService workerPool;
+    private static Logger log = LogManager.getLogger(Scanner.class.getName());
 
-    public Scanner(FilterSet filterSet, VideoCapture capture, Harpune harpune) {
+    public Scanner(FilterSet filterSet, VideoCapture capture, int camport, Harpune harpune) {
         this.capture = capture;
+        this.camPort = camport;
         this.harpune = harpune;
         greenCounter = new CubeCounter(filterSet.getColorFilter(Color.GREEN));
         greenCounter.setTargetZone(targetZone);
@@ -66,23 +73,17 @@ public class Scanner implements Runnable {
             }
         });
         t.start();
-        /*
-        try {
-            Thread.sleep(scanTime);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        */
+
         while(moveLeft(scanSteps))
         {
             try {
                 Thread.sleep(scanTime);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
             }
         }
 
-        System.out.println(new Date().toString() + " Scanner.run: " + getCounts());
+        log.info("Counts: " + getCounts());
         bScanning = false;
     }
 
@@ -97,8 +98,8 @@ public class Scanner implements Runnable {
         worker3 = yellowCounter;
         worker4 = blueCounter;
 
-        System.out.println(new Date().toString() + "Scanner.scan: Start Scanning...");
-        capture = new VideoCapture(0);
+        log.info("Start Scanning...");
+        capture = new VideoCapture(camPort);
         while (bScanning) {
             if (capture.isOpened()) {
                 capture.read(input);
@@ -137,7 +138,7 @@ public class Scanner implements Runnable {
 
             }
         }
-        System.out.println(new Date().toString() +"Scanner.scan: Stop Scanning.");
+        log.info("Stop Scanning.");
     }
 
     public CubeCounter getHighestCounter() {
@@ -167,7 +168,7 @@ public class Scanner implements Runnable {
 
         capture = new VideoCapture(file);
 
-        System.out.println(new Date().toString() + "Scanner.scanFromFile: Start Scanning...");
+        log.info("Start Scanning...");
         while (true) {
             if (capture.isOpened()) {
                 capture.read(input);
@@ -204,7 +205,7 @@ public class Scanner implements Runnable {
                     output.release();
                 }
                 else {
-                    System.out.println(new Date().toString() + "Scanner.scanFromFile: " + getCounts());
+                    log.info("Counts: " + getCounts());
                     capture.open(file);
                     redCounter.resetCount();
                     yellowCounter.resetCount();
@@ -214,8 +215,8 @@ public class Scanner implements Runnable {
             }
             try {
                 Thread.sleep(20);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
             }
         }
     }
