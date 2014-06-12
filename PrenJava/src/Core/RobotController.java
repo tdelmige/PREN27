@@ -13,6 +13,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
+
 import javax.swing.*;
 import javax.swing.text.AsyncBoxView;
 import java.util.Date;
@@ -40,6 +41,7 @@ public class RobotController implements GUIListener {
     private Tower tower;
     private Harpune harpune;
     private Funnel funnel;
+
     private Crosshair crosshair;
 
     private static Logger log = LogManager.getLogger(RobotController.class.getName());
@@ -51,6 +53,14 @@ public class RobotController implements GUIListener {
         RobotController.comAdr = Command.getComAdr();
     }
     public RobotController() {
+
+        capture = new VideoCapture(CamPort);
+        if (capture.isOpened()) {
+            System.out.println("Cam initialisiert");
+        } else {
+            System.out.println("Cam nicht initialisiert");
+        }
+
         instance = this;
         command = new Command();
 
@@ -85,6 +95,7 @@ public class RobotController implements GUIListener {
             }
         });
 
+        init();
         //scanner.scanFromFile("PrenJava/res/vid2.m4v");
         //filterPicker.setFile("PrenJava/Res/vid2.m4v");
         //filterPicker.setColorFilter(filterSet.getColorFilter(Color.RED));
@@ -144,7 +155,7 @@ public class RobotController implements GUIListener {
         public void live() {
             bRun = true;
             try {
-                capture = new VideoCapture(CamPort);
+                //capture = new VideoCapture(0);
                 input = new Mat();
                 output = new Mat();
                 while(bRun) {
@@ -247,7 +258,7 @@ public class RobotController implements GUIListener {
         public void run() {
             bRun = true;
             try {
-                capture = new VideoCapture(CamPort);
+                //capture = new VideoCapture(CamPort);
                 input = new Mat();
                 while (bRun) {
                     capture.read(input);
@@ -276,19 +287,20 @@ public class RobotController implements GUIListener {
         }
     }
 
-//    public static void InitMotors(){
-//
-//        for(short i=0; i<5; i++){
-//            command.Send(Command.InitMove(i, (short) 1));
-//        }
-//    }
+   public static void init(){
+       comFunc = "RobotController.init";
+       log.info(comFunc);
+        for(short i=0; i<4; i++){
+            command.Send(Command.InitMove(i, (short) 1),comAdr,comFunc);
+        }
+   }
 
     public static void Stop()
     {
         comFunc = "RobotController.Stop";
         log.info(comFunc);
 
-        for(short i=0; i<5; i++){
+        for(short i=0; i<4; i++){
             command.Send(Command.StopMove(i, true),comAdr, comFunc);
         }
     }
@@ -350,7 +362,9 @@ public class RobotController implements GUIListener {
                 log.error(ex.getMessage());
             }
         }
-
+        harpune.MoveRight(96200);
+        harpune.MoveDown(28444);
+        /*
         aimbot = new Aimbot(capture, scanner.getMostCubeCounter(),harpune);
         Thread tAimbot = new Thread(aimbot);
         tAimbot.start();
@@ -362,7 +376,7 @@ public class RobotController implements GUIListener {
                 log.error(ex.getMessage());
             }
         }
-
+        */
         //Finish
     }
 

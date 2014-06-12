@@ -37,7 +37,7 @@ public class Command implements IObserver<IMessage>{
 	
 	static 
 	{
-		ComPort.PortNr = "COM6";
+		ComPort.PortNr = "COM5";
 		com = new ComPort();
 		
 	}

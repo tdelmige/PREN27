@@ -27,8 +27,8 @@ public class Harpune implements IObserver<IMessage> {
     private final int JIG_MAX = 842891; // 0C DC 8B - 842 891
 
     // Speed
-    private short speedPull = 10;
-    private short speedLoose = 50;
+    private short speedPull = 40;
+    private short speedLoose = 200;
 
     // Acceleration & Deceleration
     private short accPull = 20;
@@ -48,7 +48,7 @@ public class Harpune implements IObserver<IMessage> {
     private short dec = 0;
     private short posPull = 40;
     private short posLoose = 0;
-    private short speedHarpune = 5 ;
+    private short speedHarpune = 6;
 
     public final int MaxPos = 4194303;
 
