@@ -20,7 +20,8 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 
-public class Scanner implements Runnable {
+public class
+        Scanner implements Runnable {
 
     private boolean bScanning = false;
     private int scanTime = 10000;
@@ -153,21 +154,6 @@ public class Scanner implements Runnable {
         log.info("Stop Scanning.");
     }
 
-    public CubeCounter getHighestCounter() {
-        CubeCounter highest;
-        highest = redCounter;
-        if (yellowCounter.getCount() > highest.getCount()) {
-            highest = yellowCounter;
-        }
-        if (blueCounter.getCount() > highest.getCount()) {
-            highest = blueCounter;
-        }
-        if (greenCounter.getCount() > highest.getCount()) {
-            highest = greenCounter;
-        }
-        return highest;
-    }
-
     public void scanFromFile(String file) {
         input = new Mat();
         output = new Mat();
@@ -243,11 +229,15 @@ public class Scanner implements Runnable {
         return s;
     }
 
+    // CoubeCounter mit der grössten Anzahl Wüfel, welche kleinergleich 7 ist.
     public CubeCounter getMostCubeCounter(){
-        CubeCounter counter = greenCounter;
-        if (counter.getCount() < blueCounter.getCount()){ counter = blueCounter;}
-        if (counter.getCount() < yellowCounter.getCount()){ counter = yellowCounter;}
-        if (counter.getCount() < redCounter.getCount()){ counter = redCounter;}
+
+        CubeCounter counter = new CubeCounter(null);
+
+        if (counter.getCount() < greenCounter.getCount() && greenCounter.getCount() < 7){ counter = greenCounter;}
+        if (counter.getCount() < blueCounter.getCount() && blueCounter.getCount() <7){ counter = blueCounter;}
+        if (counter.getCount() < yellowCounter.getCount() && yellowCounter.getCount() <7){ counter = yellowCounter;}
+        if (counter.getCount() < redCounter.getCount() && redCounter.getCount() <7){ counter = redCounter;}
 
         return counter;
     }

@@ -364,19 +364,24 @@ public class RobotController implements GUIListener {
         }
         harpune.MoveRight(96200);
         harpune.MoveDown(28444);
-        /*
-        aimbot = new Aimbot(capture, scanner.getMostCubeCounter(),harpune);
-        Thread tAimbot = new Thread(aimbot);
-        tAimbot.start();
 
-        while(tAimbot.isAlive()){
-            try {
-                Thread.sleep(8);
-            } catch (InterruptedException ex) {
-                log.error(ex.getMessage());
+        CubeCounter counter = scanner.getMostCubeCounter();
+
+        if(counter.getCount() > 0){
+            aimbot = new Aimbot(capture, counter, harpune);
+
+            Thread tAimbot = new Thread(aimbot);
+            tAimbot.start();
+
+            while(tAimbot.isAlive()){
+                try {
+                    Thread.sleep(8);
+                } catch (InterruptedException ex) {
+                    log.error(ex.getMessage());
+                }
             }
         }
-        */
+
         //Finish
     }
 
