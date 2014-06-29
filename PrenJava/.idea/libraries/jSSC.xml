@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="jSSC">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/res/jSSC" />
+      <root url="file://$PROJECT_DIR$/res/log4j" />
+      <root url="file://$PROJECT_DIR$/res/OpenCV" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/res/OpenCV" />
+    </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$/res/jSSC" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/res/log4j" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/res/OpenCV" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/res/OpenCV" recursive="false" type="SOURCES" />
+  </library>
+</component>
