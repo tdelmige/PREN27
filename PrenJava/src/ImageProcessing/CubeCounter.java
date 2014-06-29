@@ -28,6 +28,10 @@ public class CubeCounter implements Runnable {
         this.Finder = new CubeFinder();
     }
 
+    public void setGround(MatOfPoint2f ground) {
+        Finder.setGround(ground);
+    }
+
     public void setFilter(ColorFilter Filter) {
         this.Filter = Filter;
     }

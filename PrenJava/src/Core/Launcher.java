@@ -17,8 +17,11 @@ public class Launcher {
 
 	public static void main(String arg[])
 	{
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        //System.load(new File("PrenJava/res/OpenCV/libopencv_java248.dylib").getAbsolutePath());
+        //System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        //
+        //
+        //System.load("PrenJava/res/OpenCV/libopencv_java249.dylib");
+        System.load(new File("res/OpenCV/libopencv_java249.dylib").getAbsolutePath());
 
 		log.info("Robot started");
 

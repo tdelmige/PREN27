@@ -7,6 +7,7 @@ import java.util.Map;
 import Common.Color;
 import ImageProcessing.*;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
@@ -20,19 +21,20 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 
-public class
-        Scanner implements Runnable {
+public class Scanner implements Runnable {
 
     private boolean bScanning = false;
     private int scanTime = 10000;
     private int scanSteps = 96200;
 
+    private ColorFilter colorFilter;
     private FilterSet filterSet;
     private TargetZone targetZone;
     private CubeCounter greenCounter;
     private CubeCounter redCounter;
     private CubeCounter yellowCounter;
     private CubeCounter blueCounter;
+    private GroundDetector groundDetector;
 
     private Harpune harpune;
     private VideoCapture capture;
@@ -50,6 +52,7 @@ public class
     public Scanner(FilterSet filterSet, VideoCapture capture, Harpune harpune) {
         this.capture = capture;
         this.harpune = harpune;
+        groundDetector = new GroundDetector();
         imShow = new ImShow("Scanner");
         greenCounter = new CubeCounter(filterSet.getColorFilter(Color.GREEN));
         greenCounter.setTargetZone(targetZone);
@@ -59,6 +62,7 @@ public class
         blueCounter.setTargetZone(targetZone);
         yellowCounter = new CubeCounter(filterSet.getColorFilter(Color.YELLOW));
         yellowCounter.setTargetZone(targetZone);
+        colorFilter = filterSet.getColorFilter(Color.GROUND);
     }
 
     @Override
@@ -114,17 +118,37 @@ public class
             if (capture.isOpened()) {
                 capture.read(input);
                 if (!input.empty()) {
+                    // convert to hsv
                     Imgproc.cvtColor(input, output, Imgproc.COLOR_BGR2HSV);
 
+                    // create copies of image
+                    Mat imgGround = output.clone();
                     Mat imgGreen = output.clone();
                     Mat imgBlue = output.clone();
                     Mat imgRed = output.clone();
                     Mat imgYellow = output.clone();
 
+                    // detect ground area
+                    imgGround = colorFilter.filter(imgGround);
+                    groundDetector.findGround(imgGround);
+                    MatOfPoint2f ground = groundDetector.getGround();
+
+                    // create copies of ground area points
+                    MatOfPoint2f g1, g2, g3, g4;
+                    g1 = new MatOfPoint2f(ground.toArray());
+                    g2 = new MatOfPoint2f(ground.toArray());
+                    g3 = new MatOfPoint2f(ground.toArray());
+                    g4 = new MatOfPoint2f(ground.toArray());
+
+                    // set images and ground areas
                     greenCounter.setNextFrame(imgGreen);
+                    greenCounter.setGround(g1);
                     redCounter.setNextFrame(imgRed);
+                    redCounter.setGround(g2);
                     yellowCounter.setNextFrame(imgYellow);
+                    yellowCounter.setGround(g3);
                     blueCounter.setNextFrame(imgBlue);
+                    blueCounter.setGround(g4);
 
                     workerPool = Executors.newFixedThreadPool(4);
                     workerPool.execute(worker1);

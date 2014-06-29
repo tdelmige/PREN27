@@ -16,6 +16,7 @@ import org.opencv.imgproc.Imgproc;
 
 import javax.swing.*;
 import javax.swing.text.AsyncBoxView;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -28,8 +29,8 @@ public class RobotController implements GUIListener {
     private VideoCapture capture;
     private FilterSet customFilterSet;
     private FilterSet filterSet;
-    private FilterPicker filterPicker;
-    private ManualAim manualAim;
+    private FilterPicker filterPicker = null;
+    private ManualAim manualAim = null;
     private PropertyManager propertyManager;
     private Scanner scanner;
     private Aimbot aimbot;
@@ -52,6 +53,7 @@ public class RobotController implements GUIListener {
     static {
         RobotController.comAdr = Command.getComAdr();
     }
+
     public RobotController() {
 
         capture = new VideoCapture(CamPort);
@@ -67,7 +69,6 @@ public class RobotController implements GUIListener {
         tower = new Tower(command);
         harpune = new Harpune(command);
         funnel = new Funnel(command);
-        filterPicker = new FilterPicker();
         propertyManager = new PropertyManager();
         filterSet = propertyManager.getFilterSet();
         customFilterSet = propertyManager.getFilterSet();
@@ -100,203 +101,23 @@ public class RobotController implements GUIListener {
         //filterPicker.setFile("PrenJava/Res/vid2.m4v");
         //filterPicker.setColorFilter(filterSet.getColorFilter(Color.RED));
 
+        filterPicker = new FilterPicker(capture, this, log);
+        filterPicker.setFile("res/pic238.jpg");
+        manualAim = new ManualAim(log, capture, this);
+
         while(!Close) {}
         System.exit(0);
     }
 
-    @Override
-    public void startFilterPicker() {
-
-        Thread t = new Thread(filterPicker);
-        t.start();
-    }
-
-    @Override
-    public void stopFilterPicker() {
-        filterPicker.stop();
-    }
-
-    private class FilterPicker implements Runnable{
-
-        private ColorFilter colorFilter;
-        private Mat input;
-        private Mat output;
-        private boolean bRun = false;
-        private Size size = new Size(400, 300);
-        private String file = null;
-
-        public FilterPicker() {}
-
-        public ColorFilter getColorFilter() {
-            return colorFilter;
-        }
-
-        public void setColorFilter(ColorFilter colorFilter) {
-            this.colorFilter = colorFilter;
-        }
-
-        public void stop() {
-            bRun = false;
-        }
-
-        public void setFile(String file) {
-            this.file = file;
-        }
-
-        @Override
-        public void run() {
-            if (file == null) {
-                live();
-            } else {
-                loopFile(file);
-            }
-        }
-
-        public void live() {
-            bRun = true;
-            try {
-                //capture = new VideoCapture(0);
-                input = new Mat();
-                output = new Mat();
-                while(bRun) {
-                    capture.read(input);
-                    if (!input.empty()) {
-                        Imgproc.cvtColor(input, output, Imgproc.COLOR_BGR2HSV);
-                        output = colorFilter.filter(output);
-                        Imgproc.resize(input, input, size);
-                        Imgproc.resize(output, output, size);
-                        if (SwingUtilities.isEventDispatchThread()) {
-                            main.setOriginalImage(input);
-                            main.setProcessedImage(output);
-                        } else {
-                            SwingUtilities.invokeAndWait( new Runnable() {
-                                @Override
-                                public void run() {
-                                    main.setOriginalImage(input);
-                                    main.setProcessedImage(output);
-                                }
-                            });
-                        }
-                    }
-                }
-            } catch (Exception ex) {
-                log.error(ex.getMessage());
-            }
-        }
-
-        public void loopFile(String file) {
-            bRun = true;
-            try {
-                capture = new VideoCapture(file);
-                input = new Mat();
-                output = new Mat();
-
-                while(bRun) {
-                    capture.read(input);
-                    if (!input.empty()) {
-                        Imgproc.cvtColor(input, output, Imgproc.COLOR_BGR2HSV);
-                        output = colorFilter.filter(output);
-                        Imgproc.resize(input, input, size);
-                        Imgproc.resize(output, output, size);
-                        if (SwingUtilities.isEventDispatchThread()) {
-                            main.setOriginalImage(input);
-                            main.setProcessedImage(output);
-                        } else {
-                            SwingUtilities.invokeAndWait( new Runnable() {
-                                @Override
-                                public void run() {
-                                    main.setOriginalImage(input);
-                                    main.setProcessedImage(output);
-                                }
-                            });
-                        }
-                        Thread.sleep(50);
-                    } else {
-                        capture.open(file);
-                    }
-                }
-            } catch (Exception ex) {
-                log.error(ex.getMessage());
-            }
-        }
-    }
-
-    @Override
-    public void startManualAim() {
-        manualAim = new ManualAim();
-        Thread t = new Thread(manualAim);
-        t.start();
-    }
-
-    @Override
-    public void stopManualAim() {
-        manualAim.stop();
-    }
-
-    private class ManualAim implements Runnable {
-
-        private boolean bRun = false;
-        private Crosshair crosshair = null;
-        private Mat input;
-        private Size size = new Size(600, 400);
-        private Size crosshairSize = new Size(50,50);
-
-        public void stop() {
-            bRun = false;
-            input.release();
-        }
-
-        public void setCrosshairOffset(int offset) {
-            crosshair.setOffset(offset);
-        }
-
-        public void setCrosshairSize(Size size) {
-            crosshair.setCrossHairSize(size);
-        }
-
-        @Override
-        public void run() {
-            bRun = true;
-            try {
-                //capture = new VideoCapture(CamPort);
-                input = new Mat();
-                while (bRun) {
-                    capture.read(input);
-                    if (!input.empty()) {
-                        if (crosshair == null) {
-                            crosshair = new Crosshair(input.size(), crosshairSize);
-                        }
-                        crosshair.drawCrosshair(input);
-                        Imgproc.resize(input, input, size);
-                        if (SwingUtilities.isEventDispatchThread()) {
-                            main.setImage(input);
-                        } else {
-                            SwingUtilities.invokeAndWait( new Runnable() {
-                                @Override
-                                public void run() {
-                                    main.setImage(input);
-                                }
-                            });
-                        }
-                    }
-                }
-
-            } catch (Exception ex) {
-                log.error(ex.getMessage());
-            }
-        }
-    }
-
-   public static void init(){
-       comFunc = "RobotController.init";
-       log.info(comFunc);
+    public static void init(){
+        comFunc = "RobotController.init";
+        log.info(comFunc);
         for(short i=0; i<4; i++){
             command.Send(Command.InitMove(i, (short) 1),comAdr,comFunc);
         }
-   }
+    }
 
-    public static void Stop()
-    {
+    public static void Stop(){
         comFunc = "RobotController.Stop";
         log.info(comFunc);
 
@@ -317,10 +138,73 @@ public class RobotController implements GUIListener {
         }
     }
 
+    public void updateFilterPickerImages(final Mat orig, final Mat proc) {
+        if (SwingUtilities.isEventDispatchThread()) {
+            main.setOriginalImage(orig);
+            main.setProcessedImage(proc);
+        } else try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    main.setOriginalImage(orig);
+                    main.setProcessedImage(proc);
+                }
+            });
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateManualAimImage(final Mat m) {
+        if (SwingUtilities.isEventDispatchThread()) {
+            main.setImage(m);
+        } else try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    main.setImage(m);
+                }
+            });
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void startFilterPicker() {
+        Thread t = new Thread(filterPicker);
+        t.start();
+    }
+
+    @Override
+    public void stopFilterPicker() {
+        filterPicker.stop();
+    }
+
+    @Override
+    public void startManualAim() {
+        Thread t = new Thread(manualAim);
+        t.start();
+    }
+
+    @Override
+    public void stopManualAim() {
+        manualAim.stop();
+    }
+
     @Override
     public void setFilter(Color color) {
         if (filterPicker != null) {
             filterPicker.setColorFilter(customFilterSet.getColorFilter(color));
+            filterPicker.setGroundFilter(customFilterSet.getColorFilter(Color.GROUND));
+            if (color == Color.GROUND)
+                filterPicker.setGroundDetection(true);
+            else
+                filterPicker.setGroundDetection(false);
         }
         main.setColorFilter(customFilterSet.getColorFilter(color));
     }
@@ -386,8 +270,7 @@ public class RobotController implements GUIListener {
     }
 
     @Override
-    public void stopAutoAim()
-    {
+    public void stopAutoAim(){
         scanner.Stop();
         aimbot.Stop = true;
     }
@@ -398,18 +281,4 @@ public class RobotController implements GUIListener {
         filterSet = propertyManager.getFilterSet();
     }
 
-    public void start() {
-        // 1. init Parameter
-        // 1. Tower in Position
-        tower.MoveRight();
-        // 2. Scanner
-        scanner.run();
-        // 3. Aimbot
-        aimbot.setCrosshair(crosshair);
-        aimbot.run();
-        // 4. Funnel
-        funnel.Open();
-        // 5. Tower back to Start
-        tower.MoveLeft();
-    }
 }

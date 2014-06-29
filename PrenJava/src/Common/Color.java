@@ -23,6 +23,9 @@ public enum Color {
         public String toString() {
             return "Gruen";
         }
+    },
+    GROUND(4) {
+        public String toString() { return "Feld"; }
     };
 
     private final int value;

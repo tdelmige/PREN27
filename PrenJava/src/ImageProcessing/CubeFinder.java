@@ -32,9 +32,11 @@ public class CubeFinder {
     
     // List of found Cubes
     private ArrayList<Cube> Cubes = null;
-    
+
+    MatOfPoint2f ground;
+
     public CubeFinder() {
-    	this.minArea = 250;
+    	this.minArea = 120;
     	this.kSize = new Size(3,3);
     	this.sigmaX = 1;
     	this.maxValue = 100;
@@ -97,6 +99,10 @@ public class CubeFinder {
     public void setBlockSize(int blockSize) {
         this.blockSize = blockSize;
     }
+
+    public void setGround(MatOfPoint2f ground) {
+        this.ground = ground;
+    }
     
     public ArrayList<Cube> getCubes() {
     	return Cubes;
@@ -126,7 +132,7 @@ public class CubeFinder {
         for(MatOfPoint Contour : Contours) {
             double Area = Imgproc.contourArea(Contour);
 
-            if (Area > minArea && Area < 5000) {
+            if (Area > minArea && Area < 4*minArea) {
                 Cube newCube = new Cube();
 
                 // get Center
@@ -143,12 +149,14 @@ public class CubeFinder {
                 if (Cubes == null) {
                     Cubes = new ArrayList<>();
                 }
-                Cubes.add(newCube);
+                if (Imgproc.pointPolygonTest(ground, newCube.getCenter(), false) >= 0) {
+                    Cubes.add(newCube);
+                }
             }
         }
 
         Hierarchy.release();
-        inputImage.release();
+        //inputImage.release();
         processedImage.release();
         return Cubes;
     }
@@ -168,7 +176,7 @@ public class CubeFinder {
         for(MatOfPoint Contour : Contours) {
             double Area = Imgproc.contourArea(Contour);
             
-            if (Area > minArea && Area < 2*minArea) {
+            if (Area > minArea && Area < 5*minArea) {
                 Cube newCube = new Cube();
                 
                 // get Center
@@ -181,13 +189,24 @@ public class CubeFinder {
                 // approx Corners
                 Rect boundingRect = Imgproc.boundingRect(Contour);
                 newCube.setBoundingRect(boundingRect);
-                               
-                Cubes.add(newCube);
+
+                if (Imgproc.pointPolygonTest(ground, newCube.getCenter(), false) >= 0) {
+                    Cubes.add(newCube);
+                }
             }
         }
         Hierarchy.release();
-        inputImage.release();
+        //inputImage.release();
         processedImage.release();
+    }
+
+    public void draw(Mat m) {
+        if (Cubes != null) {
+            for (Cube C : Cubes) {
+                Core.circle(m, C.getCenter(), 2, new Scalar(255, 255, 0));
+                Core.rectangle(m, C.getUpperLeft(), C.getLowerRight(), new Scalar(255, 255, 0));
+            }
+        }
     }
     
 }
