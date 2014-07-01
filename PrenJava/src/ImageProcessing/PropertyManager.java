@@ -13,7 +13,7 @@ import org.apache.logging.log4j.LogManager;
  */
 public class PropertyManager {
 
-    private final String FILE = "res/config.properties";
+    private final String FILE = "PrenJava/res/config.properties";
     private Properties config;
     private static Logger log = LogManager.getLogger(PropertyManager.class.getName());
 

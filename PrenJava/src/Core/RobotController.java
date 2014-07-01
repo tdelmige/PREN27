@@ -48,7 +48,7 @@ public class RobotController implements GUIListener {
     private static Logger log = LogManager.getLogger(RobotController.class.getName());
 
     public static boolean Close = false;
-    public static short CamPort = -1;
+    public static short CamPort = 0;
 
     static {
         RobotController.comAdr = Command.getComAdr();
@@ -56,12 +56,12 @@ public class RobotController implements GUIListener {
 
     public RobotController() {
 
-        capture = new VideoCapture(CamPort);
-        if (capture.isOpened()) {
-            log.info("Cam initialisiert");
-        } else {
-            log.info("Cam nicht initialisiert");
-        }
+//        capture = new VideoCapture(CamPort);
+//        if (capture.isOpened()) {
+//            log.info("Cam initialisiert");
+//        } else {
+//            log.info("Cam nicht initialisiert");
+//        }
 
         instance = this;
         command = new Command();
@@ -102,7 +102,7 @@ public class RobotController implements GUIListener {
         //filterPicker.setColorFilter(filterSet.getColorFilter(Color.RED));
 
         filterPicker = new FilterPicker(capture, this, log);
-        filterPicker.setFile("res/pic238.jpg");
+        //filterPicker.setFile("res/pic238.jpg");
         manualAim = new ManualAim(log, capture, this);
 
         while(!Close) {}
@@ -235,6 +235,8 @@ public class RobotController implements GUIListener {
     @Override
     public void startAutoAim(){
 
+        tower.MoveLeft(2400);
+
         scanner = new Scanner(customFilterSet, capture, harpune);
         Thread tScanner = new Thread(scanner);
         tScanner.start();
@@ -267,6 +269,7 @@ public class RobotController implements GUIListener {
         }
 
         //Finish
+        tower.MoveRight(2400);
     }
 
     @Override

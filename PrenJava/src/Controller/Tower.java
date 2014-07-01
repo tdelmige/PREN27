@@ -39,7 +39,7 @@ public class Tower implements IObserver<IMessage> {
         com.Send(Command.Move(MOTOR, LEFT, speed, acc, dec), comAdr, comFunc);
     }
 
-    public void MoveLeft(short steps) {
+    public void MoveLeft(int steps) {
         int pos = GetPosHorizontal();
         pos += steps;
         pos &= 0x3FFFFF;
@@ -57,7 +57,7 @@ public class Tower implements IObserver<IMessage> {
         com.Send(Command.Move(MOTOR, RIGHT, speed, acc, dec), comAdr, comFunc);
     }
 
-	public void MoveRight(short steps){
+	public void MoveRight(int steps){
         int pos = GetPosHorizontal();
         pos += steps;
         pos &= 0x3FFFFF;

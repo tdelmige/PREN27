@@ -80,7 +80,7 @@ public class Aimbot implements Runnable, IObserver<IMessage> {
 
                                 // Todo: Überwachungs das Cube auch gezogen wird!
                                 harpune.Pull();
-                                Thread.sleep(4000);
+                                Thread.sleep(8000);
                             }
                         }
 

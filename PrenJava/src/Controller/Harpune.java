@@ -24,11 +24,11 @@ public class Harpune implements IObserver<IMessage> {
 
     // Positions
     private final int JIG_MIN = 0;
-    private final int JIG_MAX = 842891; // 0C DC 8B - 842 891
+    private final int JIG_MAX = 761856; // 0B 1B 00 - 761856
 
     // Speed
     private short speedPull = 40;
-    private short speedLoose = 200;
+    private short speedLoose = 160;
 
     // Acceleration & Deceleration
     private short accPull = 20;
@@ -278,6 +278,7 @@ public class Harpune implements IObserver<IMessage> {
             {
                 received = true;
             }
+
 
             response = arg;
             response.setChecked(false);
